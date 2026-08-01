@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="/static/css/reset.css" />
+    <link rel="stylesheet" href="/static/css/style.css" />
+    <link rel="stylesheet" href="/static/css/login_signup.css" />
+
+    <title>Login</title>
+  </head>
+  <body class="auth-page">
+    <div class="login-signup-box">
+      <h1>Log in</h1>
+
+      <form id="login-form">
+        <label for="email">Email Address</label>
+        <input
+          id="email"
+          type="email"
+          name="email"
+          autocomplete="email"
+          required
+        />
+
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          name="password"
+          autocomplete="current-password"
+          required
+        />
+
+        <button id="login-button" type="submit">Log in</button>
+      </form>
+
+      <p>
+        Don't have an account?
+        <a href="./signup.html">Sign up</a>
+      </p>
+    </div>
+  </body>
+</html>
