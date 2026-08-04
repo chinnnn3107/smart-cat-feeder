@@ -18,6 +18,30 @@
   box-shadow: 0 4px 15px #888888;
 }
 
+#signup-message:empty {
+  display: none;
+}
+
+#signup-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 15px;
+  margin-bottom: 17px;
+}
+
+#login-message:empty {
+  display: none;
+}
+
+#login-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 15px;
+  margin-bottom: 17px;
+}
+
 p {
   margin-top: 30px;
   text-align: center;
@@ -25,7 +49,7 @@ p {
 }
 
 h1 {
-  font-size: 40px;
+  font-size: 30px;
   margin-bottom: 25px;
 }
 
@@ -82,7 +106,7 @@ button:hover {
   }
 
   h1 {
-    font-size: 32px;
+    font-size: 23px;
     margin-bottom: 20px;
   }
 

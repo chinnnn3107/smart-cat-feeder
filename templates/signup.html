@@ -4,15 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <link rel="stylesheet" href="/static/css/reset.css" />
-    <link rel="stylesheet" href="/static/css/style.css" />
-    <link rel="stylesheet" href="/static/css/login_signup.css" />
+    <link rel="stylesheet" href="../static/css/reset.css" />
+    <link rel="stylesheet" href="../static/css/style.css" />
+    <link rel="stylesheet" href="../static/css/login_signup.css" />
 
     <title>Signup</title>
   </head>
   <body class="auth-page">
     <div class="login-signup-box">
-      <h1>Sign up</h1>
+      <h1>Create Account</h1>
 
       <form id="signup-form">
         <label for="email">Email Address</label>
@@ -29,9 +29,12 @@
           id="password"
           type="password"
           name="password"
+          minlength="6"
           autocomplete="new-password"
           required
         />
+
+        <div id="signup-message" class="msg"></div>
 
         <button id="signup-button" type="submit">Sign up</button>
       </form>
@@ -41,5 +44,7 @@
         <a href="./login.html">Log in</a>
       </p>
     </div>
+
+    <script src="../static/js/signup.js"></script>
   </body>
 </html>
