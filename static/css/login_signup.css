@@ -18,26 +18,17 @@
   box-shadow: 0 4px 15px #888888;
 }
 
-#signup-message:empty {
-  display: none;
-}
-
-#signup-message {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 15px;
-  margin-bottom: 17px;
-}
-
+#signup-message:empty,
 #login-message:empty {
   display: none;
 }
 
+#signup-message,
 #login-message {
   display: flex;
   justify-content: center;
   align-items: center;
+  text-align: center;
   font-size: 15px;
   margin-bottom: 17px;
 }
