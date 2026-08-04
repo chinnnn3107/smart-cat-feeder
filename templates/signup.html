@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="../static/css/reset.css" />
+    <link rel="stylesheet" href="../static/css/style.css" />
+    <link rel="stylesheet" href="../static/css/login_signup.css" />
+
+    <title>Signup</title>
+  </head>
+  <body class="auth-page">
+    <div class="login-signup-box">
+      <h1>Create Account</h1>
+
+      <form id="signup-form">
+        <label for="email">Email Address</label>
+        <input
+          id="email"
+          type="email"
+          name="email"
+          autocomplete="email"
+          required
+        />
+
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          name="password"
+          minlength="6"
+          autocomplete="new-password"
+          required
+        />
+
+        <div id="signup-message" class="msg"></div>
+
+        <button id="signup-button" type="submit">Sign up</button>
+      </form>
+
+      <p>
+        Already have an account?
+        <a href="./login.html">Log in</a>
+      </p>
+    </div>
+
+    <script type="module" src="../static/js/signup.js"></script>
+  </body>
+</html>
