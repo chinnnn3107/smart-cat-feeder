@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="../static/css/reset.css" />
+    <link rel="stylesheet" href="../static/css/style.css" />
+    <link rel="stylesheet" href="../static/css/logs.css" />
+
+    <title>Log</title>
+  </head>
+  <body class="log-page">
+    <aside class="sidebar">
+      <a class="sidebar-button" href="../templates/home.html"> Home </a>
+      <a class="sidebar-button active" href="../templates/logs.html">Log</a>
+      <a class="sidebar-button" href="../templates/chatbot.html">
+        AI assistant
+      </a>
+      <a class="logout-button" href="../templates/login.html">Logout</a>
+    </aside>
+
+    <main class="main-content">
+      <div class="chart-container">
+        <h2>DAILY FEEDINGS</h2>
+        <div class="line"></div>
+        <canvas id="feeding-chart"></canvas>
+      </div>
+      <div class="prediction">
+        <span><b>Prediction</b>: Your cat will need </span>
+        <span id="feedings-prediction"><b></b></span>
+        <span><b> feedings</b> tomorrow.</span>
+      </div>
+    </main>
+
+    <script src="../static/js/logs.js"></script>
+  </body>
+</html>

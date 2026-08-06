@@ -2,7 +2,6 @@
   display: grid;
   grid-template-columns: 320px 1fr;
   grid-template-rows: minmax(100vh, auto);
-  min-height: 100vh;
   font-family: Optima, Helvetica, Tahoma, sans-serif;
 }
 
@@ -96,12 +95,16 @@
   background: #2f2f2f;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 600px) {
   .home-page {
     grid-template-columns: 1fr;
   }
 
   .first-row {
     grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    padding: 24px 16px;
   }
 }
