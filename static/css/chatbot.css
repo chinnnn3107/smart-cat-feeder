@@ -1,0 +1,174 @@
+.chatbot-page {
+  display: grid;
+  /* Keep the sidebar at 320px and let the main content fill the remaining space. */
+  grid-template-columns: 320px 1fr;
+  /* Make the page at least as tall as the viewport and allow it to grow with its content. */
+  grid-template-rows: minmax(100vh, auto);
+  font-family: Optima, Helvetica, Tahoma, sans-serif;
+}
+
+.main-content {
+  background: #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  /* Center child elements vertically. */
+  align-items: center;
+}
+
+.message-input-container {
+  display: flex;
+  flex-direction: column;
+  background: white;
+  margin-top: 100px;
+  min-height: 500px;
+  width: 70%;
+  /* horizontal offset, downward offset, blur radius */
+  box-shadow: 0 4px 15px #888888;
+}
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  background: #444;
+  height: 70px;
+  /* Add no vertical padding and 28px of horizontal padding around the header content. */
+  padding: 0 28px;
+}
+
+.online-dot {
+  width: 12px;
+  height: 12px;
+  background: greenyellow;
+  border: 2px solid #999;
+  /* Fully round the element to create a circle. */
+  border-radius: 50%;
+}
+
+.header {
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  padding-left: 10px;
+}
+
+.messages {
+  display: flex;
+  /* Fill all remaining vertical space between the header and input form. */
+  flex: 1;
+  flex-direction: column;
+  gap: 20px;
+  height: auto;
+  /* Add 34px of vertical padding and 28px of horizontal padding. */
+  padding: 34px 28px;
+  /* Show a vertical scrollbar when the messages exceed the available height. */
+  overflow-y: auto;
+}
+
+.user-message {
+  align-self: flex-end;
+  max-width: 60%;
+  padding: 14px;
+  background: #444;
+  color: white;
+  border-radius: 8px;
+}
+
+.bot-row {
+  display: flex;
+  /* Center the avatar and message bubble vertically. */
+  align-items: center;
+  gap: 12px;
+}
+
+.bot-avatar {
+  padding: 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #e0e0e0;
+}
+
+.bot-message {
+  max-width: 60%;
+  padding: 14px;
+  border-radius: 8px;
+  background: #e0e0e0;
+  color: #2f2f2f;
+}
+
+.input-message {
+  display: flex;
+  gap: 14px;
+  /* Add 20px of vertical padding and 28px of horizontal padding to the form. */
+  padding: 20px 28px;
+  background: #f1f1f1;
+}
+
+.input-message input {
+  /* Let the input fill the horizontal space remaining beside the Send button. */
+  flex: 1;
+  padding: 16px;
+  font: inherit;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  /* Remove the browser's default outline when the input receives focus. */
+  outline: none;
+}
+
+.input-message input:focus {
+  border-color: #666;
+}
+
+.input-message button {
+  /* Add no vertical padding and 28px of horizontal padding to the button. */
+  padding: 0 28px;
+
+  color: white;
+  background: #444;
+  border: none;
+  border-radius: 5px;
+
+  font: inherit;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.input-message button:hover {
+  background: #333;
+}
+
+@media (max-width: 600px) {
+  .chatbot-page {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    padding: 24px 16px;
+  }
+
+  .main-content {
+    padding: 20px;
+  }
+
+  .message-input-container {
+    width: 100%;
+    min-height: 600px;
+    margin-top: 20px;
+  }
+
+  .messages {
+    padding: 24px 16px;
+  }
+
+  .user-message,
+  .bot-message {
+    max-width: 85%;
+  }
+
+  .input-message {
+    padding: 16px;
+  }
+
+  .input-message button {
+    padding: 0 18px;
+  }
+}

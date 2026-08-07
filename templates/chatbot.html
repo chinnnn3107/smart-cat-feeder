@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="../static/css/reset.css" />
+    <link rel="stylesheet" href="../static/css/style.css" />
+    <link rel="stylesheet" href="../static/css/chatbot.css" />
+
+    <title>AI Assistant</title>
+  </head>
+  <body class="chatbot-page">
+    <aside class="sidebar">
+      <a class="sidebar-button" href="../templates/home.html"> Home </a>
+      <a class="sidebar-button" href="../templates/logs.html">Log</a>
+      <a class="sidebar-button active" href="../templates/chatbot.html">
+        AI assistant
+      </a>
+      <a class="logout-button" href="../templates/login.html">Logout</a>
+    </aside>
+
+    <main class="main-content">
+      <div class="message-input-container">
+        <div class="chat-header">
+          <div class="online-dot"></div>
+          <span class="header">AI Assistant</span>
+        </div>
+
+        <div id="messages" class="messages">
+          <div class="user-message">Has my pet finished eating?</div>
+
+          <div class="bot-row">
+            <div class="bot-avatar">🐱</div>
+
+            <div class="bot-message">No, the bowl has 12g of leftovers.</div>
+          </div>
+
+          <div class="user-message">Has my pet finished eating?</div>
+
+          <div class="bot-row">
+            <div class="bot-avatar">🐱</div>
+
+            <div class="bot-message">No, the bowl has 12g of leftovers.</div>
+          </div>
+        </div>
+
+        <form class="input-message">
+          <input
+            id="input-message"
+            type="text"
+            placeholder="Ask about your feeder..."
+            autocomplete="off"
+          />
+          <button id="send-message-button" type="submit">Send</button>
+        </form>
+      </div>
+    </main>
+
+    <script src="../static/js/chatbot.js"></script>
+  </body>
+</html>

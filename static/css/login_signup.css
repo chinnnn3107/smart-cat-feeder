@@ -2,7 +2,9 @@
   font-family: Optima, Helvetica, Tahoma, sans-serif;
   background: #e0e0e0;
   display: flex;
+  /* Center child elements horizontally. */
   justify-content: center;
+  /* Center child elements vertically. */
   align-items: center;
   min-height: 100dvh;
   padding: 20px;
@@ -15,6 +17,7 @@
   padding: 45px;
   border-radius: 5px;
   border: 1px solid #ddd;
+  /* horizontal offset, downward offset, blur radius */
   box-shadow: 0 4px 15px #888888;
 }
 
@@ -28,6 +31,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  /* Center the text horizontally. */
   text-align: center;
   font-size: 15px;
   margin-bottom: 17px;
@@ -50,8 +54,6 @@
 }
 
 .login-signup-box label {
-  display: block;
-  margin-bottom: 10px;
   color: #757575;
   font-size: small;
 }
@@ -93,6 +95,7 @@
   }
 
   .login-signup-box {
+    /* Add 28px of vertical padding and 22px of horizontal padding. */
     padding: 28px 22px;
   }
 
