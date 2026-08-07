@@ -1,5 +1,7 @@
+/* Reset the default spacing and use border-box sizing for all elements. */
 * {
   margin: 0;
   padding: 0;
+  /* Include padding and border in the element's total width and height. */
   box-sizing: border-box;
 }

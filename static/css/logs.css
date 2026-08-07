@@ -1,6 +1,8 @@
 .log-page {
   display: grid;
+  /* Keep the sidebar at 320px and let the main content fill the remaining space. */
   grid-template-columns: 320px 1fr;
+  /* Make the page at least as tall as the viewport and allow it to grow with its content. */
   grid-template-rows: minmax(100vh, auto);
   font-family: Optima, Helvetica, Tahoma, sans-serif;
 }
@@ -10,15 +12,18 @@
   padding: 40px;
   display: flex;
   flex-direction: column;
+  /* Center the online dot and title vertically. */
   align-items: center;
 }
 
 .chart-container {
   background: white;
   padding: 30px;
-  margin-top: 80px;
+  margin-top: 50px;
   min-height: 500px;
   width: 80%;
+  /* horizontal offset, downward offset, blur radius */
+  box-shadow: 0 4px 15px #888888;
 }
 
 .prediction {
@@ -27,7 +32,7 @@
 }
 
 .log-page h2 {
-  margin: 0 0 20px;
+  margin-bottom: 20px;
   color: #757575;
   font-size: 16px;
   font-weight: bold;

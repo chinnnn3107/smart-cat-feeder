@@ -1,6 +1,8 @@
 .home-page {
   display: grid;
+  /* Keep the sidebar at 320px and let the main content fill the remaining space. */
   grid-template-columns: 320px 1fr;
+  /* Make the page at least as tall as the viewport and allow it to grow with its content. */
   grid-template-rows: minmax(100vh, auto);
   font-family: Optima, Helvetica, Tahoma, sans-serif;
 }
@@ -9,15 +11,15 @@
   display: flex;
   flex-direction: column;
   gap: 25px;
-
   padding: 40px;
   background: #e0e0e0;
-
+  /* Center child elements horizontally. */
   justify-content: center;
 }
 
 .first-row {
   display: grid;
+  /* Split the layout into two equal-width columns. */
   grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
@@ -25,9 +27,10 @@
 .card {
   min-height: 200px;
   padding: 24px;
-
   background: white;
   border: 1px solid #ddd;
+  /* horizontal offset, downward offset, blur radius */
+  box-shadow: 0 4px 15px #888888;
 }
 
 .card h2 {
@@ -41,15 +44,12 @@
   width: 100%;
   padding: 18px;
   margin-top: 18px;
-
   color: white;
   background: #2f2f2f;
   border: none;
   border-radius: 4px;
-
   font-size: 16px;
   font-weight: bold;
-
   cursor: pointer;
 }
 
@@ -68,7 +68,6 @@
 
 .weight-unit {
   margin-bottom: 8px;
-
   color: #757575;
   font-size: 18px;
 }
