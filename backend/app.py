@@ -1,11 +1,11 @@
-# Import FastAPI to create the API and CORSMiddleware to allow frontend requests.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from mqtt_client import publish_feed, get_feed_status_mqtt
 
-# Initialize the FastAPI backend application.
+# Initialize the FastAPI backend application
 app = FastAPI()
 
-# Allow the frontend running on Live Server port 5500 to access the API.
+# Allow the frontend running on Live Server port 5500 to access the API
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -17,9 +17,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# API Endpoints
 @app.get("/status")
 def get_status():
-    # Return sample data for displaying the feeder status on the frontend.
+    # Return sample data for displaying the feeder status on the frontend
     return {
         "hopper_level": 34,
         "bowl_weight": 120,
@@ -28,18 +29,16 @@ def get_status():
 
 @app.post("/feed")
 def feed():
-    # Handle the basic receive feeding request, this can later trigger the feeder hardware.
+    publish_feed()
     return {
-        "accepted": True,
+        "accepted": True
     }
 
 @app.get("/feed/status")
-def feed_status():
+def get_feed_status():
+    status  = get_feed_status_mqtt()
     return {
-    # if ...
-        "status": "completed"
-    # else if ...
-      # "status": "pending"
-    # else ...
-      # "status": "failed"
+        "status": status 
     }
+
+
