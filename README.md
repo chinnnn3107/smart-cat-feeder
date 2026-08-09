@@ -2,7 +2,7 @@
 
 Smart Cat Feeder is a full-stack IoT system for monitoring food levels, measuring food left in a bowl, dispensing food locally or remotely, reviewing feeding history, predicting future demand, and asking an AI assistant questions about the feeder's current state.
 
-> **Project status:** planning and architecture only. This repository currently contains no application code.
+> **Project status:** in active development. Firmware foundation is complete; backend and frontend are pending.
 
 ## Goals
 
@@ -48,31 +48,41 @@ The ESP32 communicates only through MQTT. The browser communicates only with Fas
 | Assistant | Gemini API |
 | Frontend | HTML, CSS, JavaScript, Fetch API, Chart.js |
 
-## Planned repository layout
+## Repository layout
 
 ```text
 smart-cat-feeder/
-├── firmware/                 # ESP32 firmware
-│   ├── src/
-│   └── platformio.ini        # or an Arduino IDE project
-├── backend/
+├── firmware/                       # ESP32 firmware (ESP32-S3, PlatformIO)
+│   ├── platformio.ini              # Board config and library dependencies
+│   ├── include/
+│   │   └── Config.h                # Central config: pins, MQTT, thresholds
+│   └── src/
+│       ├── main.cpp                # Entry point: setup() and loop()
+│       ├── Network.cpp / .h        # WiFiManager provisioning + MQTT client
+│       ├── LoadCell.cpp / .h       # HX711 weight reading and publishing
+│       ├── Ultrasonic.cpp / .h     # Hopper level measurement
+│       ├── Dispenser.cpp / .h      # Servo motor control
+│       └── Button.cpp / .h        # Physical button debounce
+├── backend/                        # (Pending) FastAPI server
 │   ├── app/
-│   │   ├── api/              # HTTP route modules
-│   │   ├── services/         # MQTT, Firestore, email, Gemini, prediction
+│   │   ├── api/                    # HTTP route modules
+│   │   ├── services/               # MQTT, Firestore, email, Gemini, prediction
 │   │   ├── config.py
 │   │   └── main.py
 │   ├── tests/
 │   ├── requirements.txt
 │   └── .env.example
-├── frontend/
-│   ├── index.html
+├── static/                         # Frontend static assets
 │   ├── css/
 │   └── js/
+├── templates/                      # HTML templates
+│   ├── home.html
+│   ├── login.html
+│   ├── logs.html
+│   └── signup.html
 ├── firestore.rules
 └── README.md
 ```
-
-This structure is a target for later implementation, not a claim that these files already exist.
 
 ## Device behavior
 
@@ -289,14 +299,14 @@ The ESP32 needs broker host, port, device identity, and device-scoped credential
 
 ## Implementation roadmap
 
-1. **Foundation:** create project folders, configuration loading, Firebase project, broker credentials, and local development instructions.
-2. **Device telemetry:** calibrate sensors, implement non-blocking sampling, connect MQTT securely, and verify status topics.
-3. **Backend status path:** add FastAPI lifecycle management, MQTT ingestion, Firestore writes, validation, and `/api/status`.
-4. **Feeding path:** implement servo control, physical button, `/api/feed`, acknowledgements, cooldowns, and deduplicated daily logging.
-5. **Frontend and auth:** build authentication, shared navigation, four-card Home screen, and protected Fetch calls.
-6. **History and prediction:** add weekly history, Chart.js visualization, WMA logic, and edge-case tests.
-7. **Alerts and assistant:** add durable low-food throttling, Gmail SMTP, contextual Gemini calls, and rate limits.
-8. **Hardening:** test disconnects, duplicate messages, sensor noise, midnight boundaries, stale data, auth failures, and safe mechanical behavior.
+1. [DONE] **Foundation:** project folders created, `Config.h` with pin/MQTT/threshold constants, PlatformIO configured for ESP32-S3.
+2. [IN PROGRESS] **Device telemetry:** WiFi provisioning (WiFiManager) and MQTT connection (TLS, HiveMQ Cloud) complete. Load cell, ultrasonic, servo, and button modules pending calibration and implementation.
+3. [PENDING] **Backend status path:** add FastAPI lifecycle management, MQTT ingestion, Firestore writes, validation, and `/api/status`.
+4. [PENDING] **Feeding path:** implement servo control, physical button, `/api/feed`, acknowledgements, cooldowns, and deduplicated daily logging.
+5. [PENDING] **Frontend and auth:** build authentication, shared navigation, four-card Home screen, and protected Fetch calls.
+6. [PENDING] **History and prediction:** add weekly history, Chart.js visualization, WMA logic, and edge-case tests.
+7. [PENDING] **Alerts and assistant:** add durable low-food throttling, Gmail SMTP, contextual Gemini calls, and rate limits.
+8. [PENDING] **Hardening:** test disconnects, duplicate messages, sensor noise, midnight boundaries, stale data, auth failures, and safe mechanical behavior.
 
 ## Acceptance checklist
 
