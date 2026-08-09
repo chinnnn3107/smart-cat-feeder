@@ -21,16 +21,25 @@ app.add_middleware(
 def get_status():
     # Return sample data for displaying the feeder status on the frontend.
     return {
-        "device": "online",
-        "hopper": 75,
-        "bowl": 120,
+        "hopper_level": 34,
+        "bowl_weight": 120,
+        "today_feedings": 3
     }
-
 
 @app.post("/feed")
 def feed():
-    # Handle the basic feeding request, this can later trigger the feeder hardware.
-    print("Feed request received")
+    # Handle the basic receive feeding request, this can later trigger the feeder hardware.
     return {
-        "success": True,
+        "accepted": True,
+    }
+
+@app.get("/feed/status")
+def feed_status():
+    return {
+    # if ...
+        "status": "completed"
+    # else if ...
+      # "status": "pending"
+    # else ...
+      # "status": "failed"
     }
