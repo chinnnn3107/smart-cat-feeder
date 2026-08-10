@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from mqtt_client import publish_feed, get_feed_status_mqtt
+from mqtt_client import publish_feed
 
 # Initialize the FastAPI backend application
 app = FastAPI()
@@ -33,12 +33,4 @@ def feed():
     return {
         "accepted": True
     }
-
-@app.get("/feed/status")
-def get_feed_status():
-    status  = get_feed_status_mqtt()
-    return {
-        "status": status 
-    }
-
 
