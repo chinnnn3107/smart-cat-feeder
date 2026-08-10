@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 
+namespace {
 
 // Loadcell pins
 const int PIN_LOADCELL_DOUT = 4;
@@ -25,11 +26,9 @@ const char* MQTT_USER   = "YOUR_MQTT_USERNAME";
 const char* MQTT_PASS   = "YOUR_MQTT_PASSWORD";
 
 // MQTT Topics 
-const char* TOPIC_BOWL_WEIGHT   = "feeder/bowl_weight";
-const char* TOPIC_HOPPER_STATUS = "feeder/hopper_status";
-const char* TOPIC_CONTROL       = "feeder/control";
-const char* TOPIC_PHYSICAL_FEED = "feeder/physical_feed";
-
+const char* TOPIC_BOWL_WEIGHT   = "smart-feeder/bowl_weight";
+const char* TOPIC_HOPPER_STATUS = "smart-feeder/hopper_status";
+const char* TOPIC_FEED = "smart-feeder/feed";
 
 // Loadcell
 const float SCALE_CALIBRATION_FACTOR = 2280.0; // [NEED FIXED] Base on real measurement
@@ -42,5 +41,7 @@ const float MIN_HOPPER_CHANGE_PCT    = 5.0;    // Only MQTT when change > 5%
 
 // Default Loop (1 hour)
 const unsigned long PUBLISH_INTERVAL_MS = 3600000;
+
+} // namespace
 
 #endif // CONFIG_H

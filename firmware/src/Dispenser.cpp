@@ -1,0 +1,33 @@
+#include "Dispenser.h"
+#include "../include/Config.h"
+#include <ESP32Servo.h>
+
+static Servo servo;
+static bool isFeeding  = false;
+static unsigned long feedStartTime = 0;
+
+void Dispenser_Init() {
+    servo.attach(PIN_SERVO);
+    servo.write(0);
+}
+
+// Starts the feeding process if it is not already running
+void Dispenser_Trigger() {
+    if (isFeeding) return;
+
+    Serial.println("[Dispenser] Feeding...");
+
+    isFeeding  = true;
+    feedStartTime = millis();
+    servo.write(90);
+}
+
+// Checks whether the feeding time has finished and closes the dispenser
+void Dispenser_Loop() {
+    // TODO: Replace 5000 ms with the actual feeding duration after testing
+    if (isFeeding && millis() - feedStartTime >= 5000) {
+        servo.write(0);
+        isFeeding  = false;
+        Serial.println("[Dispenser] Feed completed");
+    }
+}
