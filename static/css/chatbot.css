@@ -20,7 +20,7 @@
   flex-direction: column;
   background: white;
   margin-top: 100px;
-  min-height: 500px;
+  height: 500px;
   width: 70%;
   /* horizontal offset, downward offset, blur radius */
   box-shadow: 0 4px 15px #888888;
@@ -33,22 +33,21 @@
   height: 70px;
   /* Add no vertical padding and 28px of horizontal padding around the header content. */
   padding: 0 28px;
+  color: white;
 }
 
 .online-dot {
   width: 12px;
   height: 12px;
   background: greenyellow;
-  border: 2px solid #999;
   /* Fully round the element to create a circle. */
   border-radius: 50%;
 }
 
 .header {
-  color: white;
   font-weight: bold;
   font-size: 18px;
-  padding-left: 10px;
+  margin-left: 10px;
 }
 
 .messages {
@@ -62,15 +61,6 @@
   padding: 34px 28px;
   /* Show a vertical scrollbar when the messages exceed the available height. */
   overflow-y: auto;
-}
-
-.user-message {
-  align-self: flex-end;
-  max-width: 60%;
-  padding: 14px;
-  background: #444;
-  color: white;
-  border-radius: 8px;
 }
 
 .bot-row {
@@ -87,10 +77,21 @@
   background: #e0e0e0;
 }
 
+.user-message,
 .bot-message {
   max-width: 60%;
   padding: 14px;
   border-radius: 8px;
+}
+
+.user-message {
+  align-self: flex-end;
+  background: #444;
+  color: white;
+}
+
+.bot-message {
+  align-self: flex-start;
   background: #e0e0e0;
   color: #2f2f2f;
 }
@@ -106,19 +107,17 @@
 .input-message input {
   /* Let the input fill the horizontal space remaining beside the Send button. */
   flex: 1;
+  /* Allow the input to shrink below its default minimum width. */
+  min-width: 0;
   padding: 16px;
   font: inherit;
   border: 1px solid #ccc;
   border-radius: 5px;
-  /* Remove the browser's default outline when the input receives focus. */
-  outline: none;
-}
-
-.input-message input:focus {
-  border-color: #666;
 }
 
 .input-message button {
+  /* Prevent the button from shrinking when space is limited. */
+  flex-shrink: 0;
   /* Add no vertical padding and 28px of horizontal padding to the button. */
   padding: 0 28px;
 
@@ -136,39 +135,19 @@
   background: #333;
 }
 
+/* Mobile */
 @media (max-width: 600px) {
   .chatbot-page {
     grid-template-columns: 1fr;
   }
 
-  .sidebar {
-    padding: 24px 16px;
-  }
-
-  .main-content {
-    padding: 20px;
-  }
-
   .message-input-container {
     width: 100%;
-    min-height: 600px;
     margin-top: 20px;
-  }
-
-  .messages {
-    padding: 24px 16px;
   }
 
   .user-message,
   .bot-message {
     max-width: 85%;
-  }
-
-  .input-message {
-    padding: 16px;
-  }
-
-  .input-message button {
-    padding: 0 18px;
   }
 }
