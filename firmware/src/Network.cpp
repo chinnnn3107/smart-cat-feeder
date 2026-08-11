@@ -85,7 +85,7 @@ void Network_Init() {
     MQTT_Reconnect();
 }
 
-// Maintains WiFi/MQTT connections. Called in loop()
+// Maintains WiFi/MQTT connections. Call repeatedly in loop()
 void Network_Loop() {
     if (WiFi.status() != WL_CONNECTED) {
         if (millis() - lastWifiReconnect >= 10000) {

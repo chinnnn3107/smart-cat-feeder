@@ -5,6 +5,7 @@ and tracks feed execution status via broker topics.
 """
 
 import os
+import json   
 from dotenv import load_dotenv
 import paho.mqtt.client as mqtt
 
@@ -18,9 +19,11 @@ MQTT_PASSWORD = os.getenv("MQTT_PASSWORD")
 # Define MQTT topics 
 FEED_TOPIC = "smart-feeder/feed"
 FEED_STATUS_TOPIC = "smart-feeder/feed/status"
+BOWL_WEIGHT_TOPIC = "feeder/bowl_weight"
 
 # Global state tracker for the current feeding operation ('idle', 'pending', 'completed', or 'failed')
 feed_status_value = "idle"
+bowl_weight = None
 
 # --- MQTT Callback Handlers ---
 
@@ -32,6 +35,7 @@ def on_connect(client, userdata, flags, reason_code, properties):
     if reason_code == 0:
         print("Connected to HiveMQ successfully")
         client.subscribe(FEED_STATUS_TOPIC)
+        client.subscribe(BOWL_WEIGHT_TOPIC) 
         print(f"Subscribed to feed status topic: {FEED_STATUS_TOPIC}")
     else:
         print(f"Failed to connect to HiveMQ broker. Reason code: {reason_code}")
@@ -41,11 +45,19 @@ def on_message(client, userdata, message):
     Callback executed when a new message is received from a subscribed MQTT topic.
     Updates the global feed_status_value when status updates arrive.
     """
-    global feed_status_value
+    global feed_status_value, bowl_weight
     payload = message.payload.decode()
+    
+    #  FEED STATUS TOPIC
     if message.topic == FEED_STATUS_TOPIC:
         feed_status_value = payload
 
+    # BOWL WEIGHT TOPIC
+    elif message.topic == BOWL_WEIGHT_TOPIC:
+        data = json.loads(payload)
+        bowl_weight = data["bowl_weight"]
+        print(f"[MQTT] Bowl weight: {bowl_weight} g")
+        
 # --- MQTT client initialization and setup ---
 # Instantiate MQTT client using Paho Callback API v2
 mqtt_client = mqtt.Client(
@@ -89,3 +101,11 @@ def get_feed_status_mqtt():
         str: Current state ('idle', 'pending', 'completed', or 'failed').
     """
     return feed_status_value
+
+def get_bowl_weight():  
+    """
+    Retrieve the current wegh
+    Returns:
+        float: The current weight of the bowl in grams.
+    """
+    return bowl_weight
