@@ -3,27 +3,27 @@
 #include "Network.h"
 #include "Dispenser.h"
 
-static unsigned long lastDebounceTime = 0; // timer for debounce
+static unsigned long lastDebounceTime = 0;
 static unsigned long debounceDelay = 50;   // 50ms debounce time
-static int lastButtonState = LOW;          // previous raw reading
-static int buttonState = LOW;              // actual verified state
+static int lastButtonState = HIGH;
+static int buttonState = HIGH;             // actual verified button state
 
 void Button_Init() {
     pinMode(PIN_BUTTON, INPUT_PULLUP);
 }
 
 void Button_Loop() {
-    // Current button state
+    // Get button state
     int reading = digitalRead(PIN_BUTTON);
 
-    // Reset debounce timer (switch changed)
+    // Reset debounce timer (if switch changed)
     if (reading != lastButtonState) {
-        lastDebounceTime = millis(); 
+        lastDebounceTime = millis();
     }
 
     // If the state has been stable longer than debounce time
     if ((millis() - lastDebounceTime) > debounceDelay) {
-        // The state actually changed --> update real button state
+        // The state actually changed --> update actual button state
         if (reading != buttonState) {
             buttonState = reading;
 
@@ -44,6 +44,6 @@ void Button_Loop() {
         }
     }
 
-    // save reading for next loop
+    // Save button state for next loop
     lastButtonState = reading;
 }
