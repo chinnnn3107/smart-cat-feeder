@@ -1,10 +1,12 @@
 #include <Arduino.h>
 #include "Dispenser.h"
 #include "Network.h"
+#include "Ultrasonic.h"
 
 void setup() {
     Serial.begin(115200);
     delay(2000); // Chờ Serial Monitor kịp mở
+    Ultrasonic_Init();
     Network_Init(); // Kết nối WiFi + MQTT
     Dispenser_Init();
 }
@@ -12,4 +14,5 @@ void setup() {
 void loop() {
     Network_Loop(); // Giữ kết nối
     Dispenser_Loop();
+    Ultrasonic_Loop();
 }

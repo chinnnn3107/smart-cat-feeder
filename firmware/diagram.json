@@ -1,31 +1,109 @@
 {
-  "version": 1,
-  "author": "Smart Cat Feeder",
-  "editor": "wokwi",
-  "parts": [
-    {
-      "type": "board-esp32-s3-devkitc-1",
-      "id": "esp",
-      "top": 0,
-      "left": 0,
-      "attrs": {}
-    },
-    {
-      "type": "wokwi-servo",
-      "id": "servo",
-      "top": 0,
-      "left": 300,
-      "attrs": {
-        "horn": "double",
-        "hornColor": "#ff6600"
-      }
-    }
-  ],
-  "connections": [
-    ["servo:PWM", "esp:15", "orange", []],
-    ["servo:V+", "esp:5V", "red", []],
-    ["servo:GND", "esp:GND.2", "black", []],
-    ["esp:TX", "$serialMonitor:RX", "", []],
-    ["esp:RX", "$serialMonitor:TX", "", []]
-  ]
+    "version": 1,
+    "author": "Smart Cat Feeder",
+    "editor": "wokwi",
+    "parts": [
+        {
+            "type": "board-esp32-s3-devkitc-1",
+            "id": "esp",
+            "top": 0,
+            "left": 0,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-servo",
+            "id": "servo",
+            "top": 0,
+            "left": 300,
+            "attrs": {
+                "horn": "double",
+                "hornColor": "#ff6600"
+            }
+        },
+        {
+            "type": "wokwi-hc-sr04",
+            "id": "ultrasonic",
+            "top": -120,
+            "left": 150,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-pushbutton",
+            "id": "btn_manual",
+            "top": 102.2,
+            "left": 153.6,
+            "attrs": {
+                "color": "green"
+            }
+        }
+    ],
+    "connections": [
+        [
+            "servo:PWM",
+            "esp:15",
+            "orange",
+            []
+        ],
+        [
+            "servo:V+",
+            "esp:5V",
+            "red",
+            []
+        ],
+        [
+            "servo:GND",
+            "esp:GND.2",
+            "black",
+            []
+        ],
+        [
+            "esp:TX",
+            "$serialMonitor:RX",
+            "",
+            []
+        ],
+        [
+            "esp:RX",
+            "$serialMonitor:TX",
+            "",
+            []
+        ],
+        [
+            "ultrasonic:VCC",
+            "esp:5V",
+            "red",
+            []
+        ],
+        [
+            "ultrasonic:GND",
+            "esp:GND.1",
+            "black",
+            []
+        ],
+        [
+            "ultrasonic:TRIG",
+            "esp:6",
+            "green",
+            []
+        ],
+        [
+            "ultrasonic:ECHO",
+            "esp:7",
+            "blue",
+            []
+        ],
+        [
+            "btn_manual:1.l",
+            "esp:GND.2",
+            "black",
+            []
+        ],
+        [
+            "btn_manual:2.l",
+            "esp:0",
+            "yellow",
+            []
+        ]
+    ],
+    "dependencies": {}
 }
