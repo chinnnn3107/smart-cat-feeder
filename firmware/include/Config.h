@@ -29,6 +29,7 @@ const char* MQTT_PASS   = "YOUR_MQTT_PASSWORD";
 const char* TOPIC_BOWL_WEIGHT   = "smart-feeder/bowl_weight";
 const char* TOPIC_HOPPER_STATUS = "smart-feeder/hopper_status";
 const char* TOPIC_FEED = "smart-feeder/feed";
+const char* TOPIC_PHYSICAL_FEED = "smart-feeder/physical_feed";
 
 // Loadcell
 const float SCALE_CALIBRATION_FACTOR = 2280.0; // [NEED FIXED] Base on real measurement
