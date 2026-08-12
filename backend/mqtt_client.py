@@ -2,6 +2,7 @@ import os
 import json
 from dotenv import load_dotenv
 import paho.mqtt.client as mqtt
+from firebase_service import log_mqtt_event
 
 # Load environment variables from .env configuration file
 load_dotenv()
@@ -34,9 +35,7 @@ def on_connect(client, userdata, flags, reason_code, properties):
         client.subscribe(HOPPER_STATUS_TOPIC)
         client.subscribe(PHYSICAL_FEED_TOPIC)
 
-        print(f"Subscribed to hopper status topic: {HOPPER_STATUS_TOPIC}")
-        print(f"Subscribed to bowl weight topic: {BOWL_WEIGHT_TOPIC}")
-        print(f"Subscribed to physical feed topic: {PHYSICAL_FEED_TOPIC}")
+        print(f"Subscribed to: {BOWL_WEIGHT_TOPIC}", {HOPPER_STATUS_TOPIC}, {PHYSICAL_FEED_TOPIC})
     else:
         print(
             f"Failed to connect to HiveMQ broker. "
@@ -47,36 +46,38 @@ def on_connect(client, userdata, flags, reason_code, properties):
 def on_message(client, userdata, message):
     """
     Callback executed when a new MQTT message is received.
-    Updates the latest bowl weight.
+    Updates the latest data.
     """
     global bowl_weight, hopper_status
 
     payload = message.payload.decode()
 
+    # Handle bowl weight (Load cell)
     if message.topic == BOWL_WEIGHT_TOPIC:
         try:
             data = json.loads(payload)
             bowl_weight = data["bowl_weight"]
             print(f"[MQTT] Bowl weight: {bowl_weight} g")
+            log_mqtt_event("sensor_logs", data)
         except (json.JSONDecodeError, KeyError, TypeError) as error:
             print(f"[MQTT] Invalid bowl weight payload: {error}")
+    
+    # Handle hopper status (Ultrasonic)
     elif message.topic == HOPPER_STATUS_TOPIC:
         try:
             data = json.loads(payload)
-            # Assumes the ESP32 sends a JSON payload like {"hopper_level": 75}
             hopper_status = data["hopper_level"]
             print(f"[MQTT] Hopper level: {hopper_status}%")
+            log_mqtt_event("sensor_logs", data)
         except (json.JSONDecodeError, KeyError, TypeError) as error:
             print(f"[MQTT] Invalid hopper status payload: {error}")
     
+    # Handle manual feed (Button)
     elif message.topic == PHYSICAL_FEED_TOPIC:
         try:
             data = json.loads(payload)
             print(f"[MQTT] Physical button feed: {data}")
-            
-            # Push the JSON payload to Firestore (ID 5 Requirement)
-            # log_mqtt_event("feed_events", data)
-            
+            log_mqtt_event("feed_events", data)
         except (json.JSONDecodeError, TypeError) as error:
             print(f"[MQTT] Invalid physical feed payload: {error}")
 
@@ -112,6 +113,12 @@ def publish_feed():
     """
     Publish a feed trigger command ('feed') to the feeder hardware over MQTT.
     """
+    feed_data = {
+        "event": "web_feed",
+        "status": "success"
+    }
+    log_mqtt_event("feed_events", feed_data)
+
     return mqtt_client.publish(FEED_TOPIC, "feed")
 
 
