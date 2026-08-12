@@ -3,6 +3,7 @@
 #include <WiFiManager.h>
 #include <PubSubClient.h>
 #include <WiFiClientSecure.h>
+#include "Dispenser.h"
 
 static WiFiClientSecure espClient; // using secured broker
 static PubSubClient mqttClient(espClient);
@@ -12,9 +13,8 @@ static unsigned long lastWifiReconnect    = 0; // support non-blocking WiFi reco
 // Triggered on new MQTT message
 static void MQTT_Callback(char* topic, byte* payload, unsigned int length) {
     String message; // class String for ESP32
-    for (unsigned int i = 0; i < length; i++) {
+    for (unsigned int i = 0; i < length; i++)
         message += (char)payload[i];
-    }
 
     Serial.print("[MQTT] Message from Topic: ");
     Serial.println(topic);
@@ -22,12 +22,9 @@ static void MQTT_Callback(char* topic, byte* payload, unsigned int length) {
     Serial.println(message);
     
     
-    if (String(topic) == TOPIC_CONTROL) {
-        if (message.indexOf("\"action\":\"feed\"") >= 0) {
-            Serial.println("[MQTT] Received feed command on web!");
-            // TODO: Call feed trigger function in Dispenser.cpp
-            // Dispenser_Trigger();
-        }
+    if (String(topic) == TOPIC_FEED && message == "feed"){
+        Serial.println("[MQTT] Received feed command on web!");
+        Dispenser_Trigger();
     }
 
     // Tin nhắn đến từ kênh khác? (Ví dụ thêm sau)
@@ -36,7 +33,7 @@ static void MQTT_Callback(char* topic, byte* payload, unsigned int length) {
     // }
 }
 
-// MQTT Reconnet (runs every 5s)
+// MQTT Reconnect (runs every 5s)
 static void MQTT_Reconnect() {
     if (millis() - lastReconnectAttempt < 5000) return;
     lastReconnectAttempt = millis();
@@ -48,9 +45,9 @@ static void MQTT_Reconnect() {
 
     if(mqttClient.connect(clientId.c_str(), MQTT_USER, MQTT_PASS)) {
         Serial.println("Success!");
-        mqttClient.subscribe(TOPIC_CONTROL, 1); // mqttClient.subscribe(topic, QoS)
+        mqttClient.subscribe(TOPIC_FEED, 1); // mqttClient.subscribe(topic, QoS)
         Serial.print("[MQTT] Subscribed to topic: ");
-        Serial.println(TOPIC_CONTROL);
+        Serial.println(TOPIC_FEED);
     }
 
     else {
@@ -58,9 +55,14 @@ static void MQTT_Reconnect() {
         Serial.println(mqttClient.state());
     }
 }
-
 // Initializes WiFi via WiFiManager and MQTT. Call once in setup()
 void Network_Init() {
+#ifdef WOKWI
+    WiFi.begin("Wokwi-GUEST", "", 6);
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(100);
+    }
+#else
     Serial.println("[WiFi] Initalizing WiFiManger...");
     WiFiManager wm;
     wm.setConfigPortalTimeout(180); // setup off after 3 minutes without connection
@@ -71,6 +73,7 @@ void Network_Init() {
         delay(3000);
         ESP.restart();
     }
+#endif
 
     Serial.print("[WiFi] Connected! IP Address: ");
     Serial.println(WiFi.localIP());
@@ -96,9 +99,8 @@ void Network_Loop() {
         return;
     }
 
-    if (!mqttClient.connected()) {
+    if (!mqttClient.connected())
         MQTT_Reconnect();
-    }
 
     mqttClient.loop();
 }

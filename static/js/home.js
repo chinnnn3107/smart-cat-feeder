@@ -31,61 +31,17 @@ async function requestFeed() {
   const data = await response.json();
 
   if (data.accepted) {
-    console.log("Feed request accepted");
-  }
-}
-
-/*
-  Query feeding lifecycle status from backend API (/feed/status)
-  Updates notification display and recursively polls if status is 'pending'
-*/
-async function getFeedStatus() {
-  const response = await fetch("http://127.0.0.1:8000/feed/status", {
-    method: "GET",
-  });
-
-  const data = await response.json();
-
-  // Case 1: Feeding successfully completed by hardware
-  if (data.status === "completed") {
-    feedNotification.textContent = "Feed successfully!";
+    feedNotification.textContent = "Feed request sent!";
     feedNotification.style.color = "green";
 
-    // Auto-clear notification after 3 seconds
     setTimeout(function () {
       feedNotification.textContent = "";
     }, 3000);
-
-    return;
   }
-
-  // Case 2: Feeding operation is in progress (poll again after 1 second)
-  if (data.status === "pending") {
-    feedNotification.textContent = "Feeding...";
-    feedNotification.style.color = "gray";
-
-    setTimeout(getFeedStatus, 1000);
-    return;
-  }
-
-  // Case 3: Feeding operation failed or timed out
-  feedNotification.textContent = "Feed failed!";
-  feedNotification.style.color = "red";
-
-  // Auto-clear notification after 3 seconds
-  setTimeout(function () {
-    feedNotification.textContent = "";
-  }, 3000);
-}
-
-// Trigger manual feed operation workflow: request feed and monitor status
-async function feedNow() {
-  await requestFeed();
-  await getFeedStatus();
 }
 
 // Bind event listener to manual feed button
-feedButton.addEventListener("click", feedNow);
+feedButton.addEventListener("click", requestFeed);
 
 // Auto-refresh every 5 seconds
 setInterval(getStatus, 5000);

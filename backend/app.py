@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from mqtt_client import publish_feed, get_feed_status_mqtt, get_bowl_weight
+from chatbot_service import ask_gemini
 
 # Initialize the FastAPI backend application
 app = FastAPI()
@@ -29,16 +30,30 @@ def get_status():
 
 @app.post("/feed")
 def feed():
+    # Publish a feed command to the ESP32 through MQTT
     publish_feed()
+    # Tell the frontend that the request was accepted
     return {
         "accepted": True
     }
 
-@app.get("/feed/status")
-def get_feed_status():
-    status  = get_feed_status_mqtt()
-    return {
-        "status": status 
-    }
+@app.post("/chat")
+def chat(request: dict):
+    # Check if the request contains the "message" key
+    if "message" not in request:
+        return {"error": "Message is required."}
 
+    # Get the user's message from the request body
+    message = request["message"]
 
+    if message.strip() == "":
+        return {"error": "Message cannot be empty."}
+
+    feeder_data = get_status()
+
+    try:
+        response = ask_gemini(message, feeder_data)
+        return { "response": response }
+    
+    except Exception:
+        return { "error": "Failed to get response from Gemini." }
