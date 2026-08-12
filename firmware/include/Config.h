@@ -28,7 +28,7 @@ static const char* MQTT_PASS   = "YOUR_MQTT_PASSWORD";
 // MQTT Topics 
 static const char* TOPIC_BOWL_WEIGHT   = "feeder/bowl_weight";
 static const char* TOPIC_HOPPER_STATUS = "feeder/hopper_status";
-static const char* TOPIC_CONTROL       = "feeder/control";
+static const char* TOPIC_FEED          = "feeder/feed";
 static const char* TOPIC_PHYSICAL_FEED = "feeder/physical_feed";
 
 // Loadcell

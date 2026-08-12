@@ -12,7 +12,7 @@ MQTT_USERNAME = os.getenv("MQTT_USERNAME")
 MQTT_PASSWORD = os.getenv("MQTT_PASSWORD")
 
 # Define MQTT topics
-FEED_TOPIC = "smart-feeder/feed"
+FEED_TOPIC = "feeder/feed"
 BOWL_WEIGHT_TOPIC = "feeder/bowl_weight"
 
 # Global state for bowl weight

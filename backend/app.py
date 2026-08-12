@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from mqtt_client import publish_feed, get_feed_status_mqtt, get_bowl_weight
+from mqtt_client import publish_feed, get_bowl_weight
 from chatbot_service import ask_gemini
 
 # Initialize the FastAPI backend application
