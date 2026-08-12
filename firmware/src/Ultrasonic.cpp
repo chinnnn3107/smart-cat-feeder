@@ -52,7 +52,7 @@ void Ultrasonic_Loop() {
         if (timeToPublish || significantChange) {
             // Only attempt to publish if network is ready
             if (MQTT_IsConnected()) {
-                String payload = String(percentage);
+                String payload = "{\"hopper_level\": " + String(percentage) + "}";
                 // MQTT_Publish returns true on success
                 if (MQTT_Publish(TOPIC_HOPPER_STATUS, payload)) {
                     lastPublishTime = currentMillis;

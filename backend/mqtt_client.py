@@ -14,9 +14,11 @@ MQTT_PASSWORD = os.getenv("MQTT_PASSWORD")
 # Define MQTT topics
 FEED_TOPIC = "feeder/feed"
 BOWL_WEIGHT_TOPIC = "feeder/bowl_weight"
+HOPPER_STATUS_TOPIC = "feeder/hopper_status"
 
 # Global state for bowl weight
 bowl_weight = None
+hopper_status = None
 
 # MQTT callback handlers
 def on_connect(client, userdata, flags, reason_code, properties):
@@ -28,8 +30,9 @@ def on_connect(client, userdata, flags, reason_code, properties):
         print("Connected to HiveMQ successfully")
 
         client.subscribe(BOWL_WEIGHT_TOPIC)
+        client.subscribe(HOPPER_STATUS_TOPIC)
 
-        print(f"Subscribed to bowl weight topic: {BOWL_WEIGHT_TOPIC}")
+        print(f"Subscribed to: {BOWL_WEIGHT_TOPIC} and {HOPPER_STATUS_TOPIC}")
     else:
         print(
             f"Failed to connect to HiveMQ broker. "
@@ -42,7 +45,7 @@ def on_message(client, userdata, message):
     Callback executed when a new MQTT message is received.
     Updates the latest bowl weight.
     """
-    global bowl_weight
+    global bowl_weight, hopper_status
 
     payload = message.payload.decode()
 
@@ -53,6 +56,14 @@ def on_message(client, userdata, message):
             print(f"[MQTT] Bowl weight: {bowl_weight} g")
         except (json.JSONDecodeError, KeyError, TypeError) as error:
             print(f"[MQTT] Invalid bowl weight payload: {error}")
+    elif message.topic == HOPPER_STATUS_TOPIC:
+        try:
+            data = json.loads(payload)
+            # Assumes the ESP32 sends a JSON payload like {"hopper_level": 75}
+            hopper_status = data["hopper_level"]
+            print(f"[MQTT] Hopper level: {hopper_status}%")
+        except (json.JSONDecodeError, KeyError, TypeError) as error:
+            print(f"[MQTT] Invalid hopper status payload: {error}")
 
 
 # MQTT client initialization and setup
@@ -97,3 +108,12 @@ def get_bowl_weight():
         float | None: Current bowl weight in grams.
     """
     return bowl_weight
+
+def get_hopper_status():
+    """
+    Retrieve the latest hopper status (ultrasonic sensor reading).
+
+    Returns:
+        int | float | None: Current hopper level percentage.
+    """
+    return hopper_status
