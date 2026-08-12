@@ -20,17 +20,16 @@ const int PIN_SERVO = 15;
 const int PIN_BUTTON = 0; 
 
 // MQTT Configuration
-const char* MQTT_SERVER = "YOUR_HIVEMQ_URL.hivemq.cloud";
-const int   MQTT_PORT   = 8883;
-const char* MQTT_USER   = "YOUR_MQTT_USERNAME";
-const char* MQTT_PASS   = "YOUR_MQTT_PASSWORD";
+static const char* MQTT_SERVER = "YOUR_HIVEMQ_URL.hivemq.cloud";
+static const int   MQTT_PORT   = 8883;
+static const char* MQTT_USER   = "YOUR_MQTT_USERNAME";
+static const char* MQTT_PASS   = "YOUR_MQTT_PASSWORD";
 
 // MQTT Topics 
-const char* TOPIC_BOWL_WEIGHT   = "smart-feeder/bowl_weight";
-const char* TOPIC_HOPPER_STATUS = "smart-feeder/hopper_status";
-const char* TOPIC_FEED = "smart-feeder/feed";
-const char* TOPIC_PHYSICAL_FEED = "smart-feeder/physical_feed";
-
+static const char* TOPIC_BOWL_WEIGHT   = "feeder/bowl_weight";
+static const char* TOPIC_HOPPER_STATUS = "feeder/hopper_status";
+static const char* TOPIC_FEED          = "feeder/feed";
+static const char* TOPIC_PHYSICAL_FEED = "feeder/physical_feed";
 // Loadcell
 const float SCALE_CALIBRATION_FACTOR = 2280.0; // [NEED FIXED] Base on real measurement
 const float MIN_WEIGHT_CHANGE_GRAMS  = 5.0;    // Only MQTT when change > 5 grams

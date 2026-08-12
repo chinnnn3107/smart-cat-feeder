@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from mqtt_client import publish_feed
+from mqtt_client import publish_feed, get_bowl_weight
 from chatbot_service import ask_gemini
 
 # Initialize the FastAPI backend application
@@ -24,7 +24,7 @@ def get_status():
     # Return sample data for displaying the feeder status on the frontend
     return {
         "hopper_level": 34,
-        "bowl_weight": 120,
+        "bowl_weight": get_bowl_weight(),
         "today_feedings": 3
     }
 

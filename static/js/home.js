@@ -43,5 +43,8 @@ async function requestFeed() {
 // Bind event listener to manual feed button
 feedButton.addEventListener("click", requestFeed);
 
+// Auto-refresh every 5 seconds
+setInterval(getStatus, 5000);
+
 // Load initial feeder telemetry metrics when DOM content is fully loaded
 window.addEventListener("DOMContentLoaded", getStatus);
