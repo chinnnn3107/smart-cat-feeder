@@ -15,6 +15,7 @@ MQTT_PASSWORD = os.getenv("MQTT_PASSWORD")
 FEED_TOPIC = "feeder/feed"
 BOWL_WEIGHT_TOPIC = "feeder/bowl_weight"
 HOPPER_STATUS_TOPIC = "feeder/hopper_status"
+PHYSICAL_FEED_TOPIC = "feeder/physical_feed"
 
 # Global state for bowl weight
 bowl_weight = None
@@ -31,8 +32,11 @@ def on_connect(client, userdata, flags, reason_code, properties):
 
         client.subscribe(BOWL_WEIGHT_TOPIC)
         client.subscribe(HOPPER_STATUS_TOPIC)
+        client.subscribe(PHYSICAL_FEED_TOPIC)
 
-        print(f"Subscribed to: {BOWL_WEIGHT_TOPIC} and {HOPPER_STATUS_TOPIC}")
+        print(f"Subscribed to hopper status topic: {HOPPER_STATUS_TOPIC}")
+        print(f"Subscribed to bowl weight topic: {BOWL_WEIGHT_TOPIC}")
+        print(f"Subscribed to physical feed topic: {PHYSICAL_FEED_TOPIC}")
     else:
         print(
             f"Failed to connect to HiveMQ broker. "
@@ -64,6 +68,17 @@ def on_message(client, userdata, message):
             print(f"[MQTT] Hopper level: {hopper_status}%")
         except (json.JSONDecodeError, KeyError, TypeError) as error:
             print(f"[MQTT] Invalid hopper status payload: {error}")
+    
+    elif message.topic == PHYSICAL_FEED_TOPIC:
+        try:
+            data = json.loads(payload)
+            print(f"[MQTT] Physical button feed: {data}")
+            
+            # Push the JSON payload to Firestore (ID 5 Requirement)
+            # log_mqtt_event("feed_events", data)
+            
+        except (json.JSONDecodeError, TypeError) as error:
+            print(f"[MQTT] Invalid physical feed payload: {error}")
 
 
 # MQTT client initialization and setup
