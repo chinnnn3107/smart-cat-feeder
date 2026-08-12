@@ -2,7 +2,7 @@ import os
 import json
 from dotenv import load_dotenv
 import paho.mqtt.client as mqtt
-from firebase_service import log_mqtt_event
+from firebase_service import update_current_status, increment_daily_feedings
 
 # Load environment variables from .env configuration file
 load_dotenv()
@@ -58,7 +58,7 @@ def on_message(client, userdata, message):
             data = json.loads(payload)
             bowl_weight = data["bowl_weight"]
             print(f"[MQTT] Bowl weight: {bowl_weight} g")
-            log_mqtt_event("sensor_logs", data)
+            update_current_status(data)
         except (json.JSONDecodeError, KeyError, TypeError) as error:
             print(f"[MQTT] Invalid bowl weight payload: {error}")
     
@@ -68,7 +68,7 @@ def on_message(client, userdata, message):
             data = json.loads(payload)
             hopper_status = data["hopper_level"]
             print(f"[MQTT] Hopper level: {hopper_status}%")
-            log_mqtt_event("sensor_logs", data)
+            update_current_status(data)
         except (json.JSONDecodeError, KeyError, TypeError) as error:
             print(f"[MQTT] Invalid hopper status payload: {error}")
     
@@ -77,7 +77,7 @@ def on_message(client, userdata, message):
         try:
             data = json.loads(payload)
             print(f"[MQTT] Physical button feed: {data}")
-            log_mqtt_event("feed_events", data)
+            increment_daily_feedings()
         except (json.JSONDecodeError, TypeError) as error:
             print(f"[MQTT] Invalid physical feed payload: {error}")
 
@@ -113,11 +113,7 @@ def publish_feed():
     """
     Publish a feed trigger command ('feed') to the feeder hardware over MQTT.
     """
-    feed_data = {
-        "event": "web_feed",
-        "status": "success"
-    }
-    log_mqtt_event("feed_events", feed_data)
+    increment_daily_feedings()
 
     return mqtt_client.publish(FEED_TOPIC, "feed")
 

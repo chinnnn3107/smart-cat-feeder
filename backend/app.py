@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from mqtt_client import publish_feed, get_bowl_weight, get_hopper_status
 from chatbot_service import ask_gemini
+from firebase_service import get_feeder_status, get_today_feedings
 
 # Initialize the FastAPI backend application
 app = FastAPI()
@@ -21,11 +22,13 @@ app.add_middleware(
 # API Endpoints
 @app.get("/status")
 def get_status():
+    current_data = get_feeder_status()
+    today_feedings = get_today_feedings()
     # Return sample data for displaying the feeder status on the frontend
     return {
         "hopper_level": get_hopper_status(),
         "bowl_weight": get_bowl_weight(),
-        "today_feedings": 0  # TODO: Connect to the database to get the actual number of feedings
+        "today_feedings": today_feedings
     }
 
 @app.post("/feed")
