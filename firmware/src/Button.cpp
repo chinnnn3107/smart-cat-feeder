@@ -35,7 +35,7 @@ void Button_Loop() {
                 
                 // Publish to the Web/Backend
                 if (MQTT_IsConnected()) {
-                    String payload = "{\"detected\"}";
+                    String payload = "{\"status\": \"success\"}";
                     if (MQTT_Publish(TOPIC_PHYSICAL_FEED, payload)) {
                         Serial.println("[MQTT] Physical feed event published to backend.");
                     }
