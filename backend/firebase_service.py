@@ -1,5 +1,5 @@
 import firebase_admin
-from firebase_admin import credentials, firestore
+from firebase_admin import credentials, firestore, auth
 from datetime import datetime, timezone
 
 # Initialize Firebase
@@ -64,3 +64,13 @@ def get_today_feedings() -> int:
         return 0
     except Exception:
         return 0
+
+# Retrieve user email from Firebase Authentication using User UID
+def get_user_email(uid: str) -> str:
+    try:
+        # Get user record from Firebase Authentication using UID
+        user_record = auth.get_user(uid)
+        return user_record.email
+    except Exception as e:
+        print(f"[Firebase Auth] Error when getting user information: {e}")
+        return None
