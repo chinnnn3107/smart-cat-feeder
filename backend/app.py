@@ -26,8 +26,8 @@ def get_status():
     today_feedings = get_today_feedings()
     # Return sample data for displaying the feeder status on the frontend
     return {
-        "hopper_level": get_hopper_status(),
-        "bowl_weight": get_bowl_weight(),
+        "hopper_level": current_data.get("hopper_level", 0),
+        "bowl_weight": current_data.get("bowl_weight", 0),
         "today_feedings": today_feedings
     }
 

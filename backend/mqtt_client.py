@@ -2,7 +2,7 @@ import os
 import json
 from dotenv import load_dotenv
 import paho.mqtt.client as mqtt
-from firebase_service import update_current_status, increment_daily_feedings
+from firebase_service import update_current_status, log_feed_event
 
 # Load environment variables from .env configuration file
 load_dotenv()
@@ -77,7 +77,7 @@ def on_message(client, userdata, message):
         try:
             data = json.loads(payload)
             print(f"[MQTT] Physical button feed: {data}")
-            increment_daily_feedings()
+            log_feed_event(event_type="manual_feed")
         except (json.JSONDecodeError, TypeError) as error:
             print(f"[MQTT] Invalid physical feed payload: {error}")
 
@@ -113,7 +113,7 @@ def publish_feed():
     """
     Publish a feed trigger command ('feed') to the feeder hardware over MQTT.
     """
-    increment_daily_feedings()
+    log_feed_event(event_type="web_feed")
 
     return mqtt_client.publish(FEED_TOPIC, "feed")
 
