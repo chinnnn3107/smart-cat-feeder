@@ -23,7 +23,24 @@ async function handleSignup(event) {
 
   try {
     // Create a new user account
-    await createUserWithEmailAndPassword(auth, email, password);
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password,
+    );
+    const user = userCredential.user;
+
+    const response = await fetch("http://127.0.0.1:8000/sync-user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: user.email }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || result.status !== "success") {
+      throw new Error(result.message || "Failed to sync user");
+    }
 
     signupMessage.textContent = "Account created successfully!";
     signupMessage.style.color = "green";
