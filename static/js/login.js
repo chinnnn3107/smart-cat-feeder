@@ -23,7 +23,11 @@ async function handleLogin(event) {
 
   try {
     // Login with firebase
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password,
+    );
     const user = userCredential.user;
 
     await fetch("http://127.0.0.1:8000/sync-user", {
@@ -31,6 +35,11 @@ async function handleLogin(event) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ uid: user.uid }),
     });
+
+    const result = await response.json();
+
+    if (!response.ok || result.status !== "success")
+      throw new Error(result.message || "Failed to sync user");
 
     loginMessage.textContent = "Login successful!";
     loginMessage.style.color = "green";
