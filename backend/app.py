@@ -1,8 +1,13 @@
+from pydantic import BaseModel
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from mqtt_client import publish_feed, get_bowl_weight, get_hopper_status
+from mqtt_client import publish_feed
 from chatbot_service import ask_gemini
-from firebase_service import get_feeder_status, get_today_feedings
+from firebase_service import get_feeder_status, get_today_feedings, get_user_email
+
+# Request models
+class LoginData(BaseModel):
+    uid: str
 
 # Initialize the FastAPI backend application
 app = FastAPI()
@@ -11,13 +16,19 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://127.0.0.1:5500",
-        "http://localhost:5500",
+        "http://127.0.0.1:5501",
+        "http://localhost:5501",
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+current_logged_in_email = None 
+current_logged_in_uid = None
+
+def get_current_user_email() -> str | None:
+    return current_logged_in_email
 
 # API Endpoints
 @app.get("/status")
@@ -60,3 +71,18 @@ def chat(request: dict):
     
     except Exception:
         return { "error": "Failed to get response from Gemini." }
+
+@app.post("/sync-user")
+def sync_user(data: LoginData):
+    global current_logged_in_email, current_logged_in_uid
+    
+    # Get email from UID through firebase_service
+    email = get_user_email(data.uid)
+    
+    if email:
+        current_logged_in_uid = data.uid
+        current_logged_in_email = email
+        print(f"Current user: {email}")
+        return {"status": "success", "email": email}
+    else:
+        return {"status": "error", "message": "User not found"}
