@@ -23,7 +23,15 @@ async function handleLogin(event) {
 
   try {
     // Login with firebase
-    await signInWithEmailAndPassword(auth, email, password);
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    await fetch("http://127.0.0.1:8000/sync-user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uid: user.uid }),
+    });
+
     loginMessage.textContent = "Login successful!";
     loginMessage.style.color = "green";
     loginButton.textContent = "Redirecting...";
