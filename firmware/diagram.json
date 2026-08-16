@@ -35,6 +35,15 @@
             "attrs": {
                 "color": "green"
             }
+        },
+        {
+            "type": "wokwi-hx711",
+            "id": "loadcell",
+            "top": 220,
+            "left": 300,
+            "attrs": {
+                "type": "5kg"
+            }
         }
     ],
     "connections": [
@@ -102,6 +111,30 @@
             "btn_manual:2.l",
             "esp:0",
             "yellow",
+            []
+        ],
+        [
+            "loadcell:VCC",
+            "esp:5V",
+            "red",
+            []
+        ],
+        [
+            "loadcell:GND",
+            "esp:GND.2",
+            "black",
+            []
+        ],
+        [
+            "loadcell:DT",
+            "esp:4",
+            "green",
+            []
+        ],
+        [
+            "loadcell:SCK",
+            "esp:5",
+            "blue",
             []
         ]
     ],

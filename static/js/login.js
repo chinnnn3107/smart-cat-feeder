@@ -26,11 +26,17 @@ async function handleLogin(event) {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    await fetch("http://127.0.0.1:8000/sync-user", {
+    const response = await fetch("http://127.0.0.1:8000/sync-user", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ uid: user.uid }),
+      body: JSON.stringify({ email: user.email }),
     });
+
+    const result = await response.json();
+
+    if (!response.ok || result.status !== "success") {
+      throw new Error(result.message || "Failed to sync user");
+    }
 
     loginMessage.textContent = "Login successful!";
     loginMessage.style.color = "green";

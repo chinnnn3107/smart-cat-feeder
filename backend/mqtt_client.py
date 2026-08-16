@@ -3,6 +3,7 @@ import json
 from dotenv import load_dotenv
 import paho.mqtt.client as mqtt
 from firebase_service import update_current_status, log_feed_event
+from email_service import checkHopperAlert
 
 # Load environment variables from .env configuration file
 load_dotenv()
@@ -18,9 +19,14 @@ BOWL_WEIGHT_TOPIC = "feeder/bowl_weight"
 HOPPER_STATUS_TOPIC = "feeder/hopper_status"
 PHYSICAL_FEED_TOPIC = "feeder/physical_feed"
 
-# Global state for bowl weight
+# Global state
 bowl_weight = None
 hopper_status = None
+current_user_email = None
+
+def set_current_user_email(email: str):
+    global current_user_email
+    current_user_email = email
 
 # MQTT callback handlers
 def on_connect(client, userdata, flags, reason_code, properties):
@@ -69,6 +75,12 @@ def on_message(client, userdata, message):
             hopper_status = data["hopper_level"]
             print(f"[MQTT] Hopper level: {hopper_status}%")
             update_current_status(data)
+
+            if current_user_email:
+                checkHopperAlert(hopper_status, current_user_email)
+            else:
+                print("[Email] No logged-in user email")
+
         except (json.JSONDecodeError, KeyError, TypeError) as error:
             print(f"[MQTT] Invalid hopper status payload: {error}")
     
