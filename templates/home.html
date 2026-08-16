@@ -1,59 +1,63 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <link rel="stylesheet" href="../static/css/reset.css" />
-    <link rel="stylesheet" href="../static/css/home.css" />
-    <link rel="stylesheet" href="../static/css/style.css" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Home</title>
-  </head>
+  <link rel="stylesheet" href="../static/css/reset.css" />
+  <link rel="stylesheet" href="../static/css/home.css" />
+  <link rel="stylesheet" href="../static/css/style.css" />
 
-  <body class="home-page">
-    <aside class="sidebar">
-      <a class="sidebar-button active" href="../templates/home.html"> Home </a>
-      <a class="sidebar-button" href="../templates/logs.html">Log</a>
-      <a class="sidebar-button" href="../templates/chatbot.html">
-        AI assistant
-      </a>
-      <a class="logout-button" href="../templates/login.html">Logout</a>
-    </aside>
+  <title>Home</title>
+</head>
 
-    <main class="main-content">
-      <div class="first-row">
-        <div class="card manual-control">
-          <h2>MANUAL CONTROL</h2>
-          <div class="line"></div>
-          <div id="feed-notification" class="feed-notification"></div>
-          <button id="feed-button" class="feed-button">Feed Now</button>
-        </div>
+<body class="home-page">
+  <aside class="sidebar">
+    <a class="sidebar-button active" href="../templates/home.html"> Home </a>
+    <a class="sidebar-button" href="../templates/logs.html">Log</a>
+    <a class="sidebar-button" href="../templates/chatbot.html">
+      AI assistant
+    </a>
+    <a href="#" id="logout-button" class="logout-button">Logout</a>
+  </aside>
 
-        <div class="card todays-feedings">
-          <h2>TODAY'S FEEDINGS</h2>
-          <div class="line"></div>
-          <span id="feedings-number" class="feedings-number"></span>
-        </div>
-      </div>
-
-      <div class="card bowl-status">
-        <h2>BOWL STATUS</h2>
+  <main class="main-content">
+    <div class="first-row">
+      <div class="card manual-control">
+        <h2>MANUAL CONTROL</h2>
         <div class="line"></div>
-        <span id="bowl-weight" class="bowl-weight"></span>
-        <span class="weight-unit">g</span>
+        <div id="feed-notification" class="feed-notification"></div>
+        <button id="feed-button" class="feed-button">Feed Now</button>
       </div>
 
-      <div class="card hopper-status">
-        <h2>HOPPER STATUS</h2>
+      <div class="card todays-feedings">
+        <h2>TODAY'S FEEDINGS</h2>
         <div class="line"></div>
-        <div id="hopper-percent" class="hopper-percent"></div>
-        <div class="progress-bar">
-          <div id="progress-fill" class="progress-fill"></div>
-        </div>
+        <span id="feedings-number" class="feedings-number"></span>
       </div>
-    </main>
+    </div>
 
-    <script src="../static/js/home.js"></script>
-  </body>
+    <div class="card bowl-status">
+      <h2>BOWL STATUS</h2>
+      <div class="line"></div>
+      <span id="bowl-weight" class="bowl-weight"></span>
+      <span class="weight-unit">g</span>
+    </div>
+
+    <div class="card hopper-status">
+      <h2>HOPPER STATUS</h2>
+      <div class="line"></div>
+      <div id="hopper-percent" class="hopper-percent"></div>
+      <div class="progress-bar">
+        <div id="progress-fill" class="progress-fill"></div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="../static/js/auth-guard.js"></script>
+  <script src="../static/js/home.js"></script>
+  <script type="module" src="../static/js/logout.js"></script>
+</body>
+
 </html>
