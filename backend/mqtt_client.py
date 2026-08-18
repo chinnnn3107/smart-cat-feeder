@@ -2,7 +2,7 @@ import os
 import json
 from dotenv import load_dotenv
 import paho.mqtt.client as mqtt
-from firebase_service import update_current_status, log_feed_event
+from firebase_service import update_current_status, log_feed_event, update_daily_eaten
 from email_service import checkHopperAlert
 
 # Load environment variables from .env configuration file
@@ -23,6 +23,7 @@ PHYSICAL_FEED_TOPIC = "feeder/physical_feed"
 bowl_weight = None
 hopper_status = None
 current_user_email = None
+last_bowl_weight = None
 
 def set_current_user_email(email: str):
     global current_user_email
@@ -64,6 +65,17 @@ def on_message(client, userdata, message):
             data = json.loads(payload)
             bowl_weight = data["bowl_weight"]
             print(f"[MQTT] Bowl weight: {bowl_weight} g")
+            
+            global last_bowl_weight
+            if last_bowl_weight is not None:
+                weight_diff = last_bowl_weight - bowl_weight
+                
+                # If weight decreases because pet ate and difference is less than 50 grams (from changing bowl)
+                if 0 < weight_diff < 50:
+                    update_daily_eaten(weight_diff)
+                    
+            last_bowl_weight = bowl_weight
+            
             update_current_status(data)
         except (json.JSONDecodeError, KeyError, TypeError) as error:
             print(f"[MQTT] Invalid bowl weight payload: {error}")
