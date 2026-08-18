@@ -1,6 +1,7 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
 from datetime import datetime, timezone
+from datetime import timedelta
 
 # Initialize Firebase
 cred = credentials.Certificate("serviceAccountKey.json")
@@ -64,3 +65,46 @@ def get_today_feedings() -> int:
         return 0
     except Exception:
         return 0
+
+
+def update_daily_eaten(amount: float):
+    try:
+        now = datetime.now(timezone.utc)
+        today_str = now.strftime("%Y-%m-%d")
+        
+        # Increment total_eaten_grams safely
+        db.collection("daily_logs").document(today_str).set({
+            "date_string": today_str,
+            "total_eaten_grams": firestore.Increment(amount),
+            "last_updated": now.isoformat()
+        }, merge=True)
+        print(f"[Firestore] Logged {amount}g eaten.")
+    except Exception as e:
+        print(f"[Firestore] Error updating eaten amount: {e}")
+        
+def get_historical_feedings(days=7) -> list:
+    try:
+        now = datetime.now(timezone.utc)
+        history = []
+        for i in range(days - 1, -1, -1):
+            target_date = now - timedelta(days=i)
+            date_str = target_date.strftime("%Y-%m-%d")
+            
+            doc = db.collection("daily_logs").document(date_str).get()
+            if doc.exists:
+                data = doc.to_dict()
+                count = data.get("total_feedings", 0)
+                eaten = data.get("total_eaten_grams", 0)
+            else:
+                count = 0
+                eaten = 0
+            
+            history.append({
+                "date": date_str[-5:], # Format MM-DD for chart
+                "count": count,
+                "eaten": eaten
+            })
+        return history
+    except Exception as e:
+        print(f"[Firestore] Error getting history: {e}")
+        return []

@@ -3,8 +3,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from mqtt_client import publish_feed, set_current_user_email
 from chatbot_service import ask_gemini
-from firebase_service import get_feeder_status, get_today_feedings
-
+from firebase_service import get_feeder_status, get_today_feedings, get_historical_feedings
+from prediction_model import calculate_ema
 # Request models
 class UserData(BaseModel):
     email: str
@@ -75,4 +75,27 @@ def sync_user(data: UserData):
     return {
         "status": "success",
         "email": data.email,
+    }
+
+@app.get("/history")
+def get_history():
+    history_data = get_historical_feedings(7)
+    return {"history": history_data}
+
+@app.get("/predict-feeding")
+def predict_feeding():
+    history_data = get_historical_feedings(7)
+    
+    # Data order in Firebase is from new to old so we have to reverse it 
+    history_data.reverse() 
+    
+    eaten_list = [day['eaten'] for day in history_data]
+    feed_count_list = [day['count'] for day in history_data]
+    
+    predicted_eaten = calculate_ema(eaten_list, days=7)
+    predicted_count = round(calculate_ema(feed_count_list, days=7))
+    
+    return {
+        "predicted_grams": predicted_eaten,
+        "predicted_meals": predicted_count
     }
