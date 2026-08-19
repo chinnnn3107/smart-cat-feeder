@@ -59,6 +59,7 @@ def chat(request: dict):
     feeder_data = get_status()
 
     try:
+        feeder_data["prediction_count"] = predict_feeding()["predicted_meals"]
         response = ask_gemini(message, feeder_data)
         return { "response": response }
     
