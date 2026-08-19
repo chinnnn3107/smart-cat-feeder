@@ -39,6 +39,7 @@ def ask_gemini(message, feeder_data):
 
     Current feeder data:
     - Today feedings: {feeder_data["today_feedings"]}
+    - Prediction count: {feeder_data["prediction_count"]}
     - Bowl weight: {feeder_data["bowl_weight"]} g
     - Hopper level: {feeder_data["hopper_level"]}%
 
