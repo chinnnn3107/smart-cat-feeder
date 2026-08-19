@@ -1,9 +1,9 @@
 from pydantic import BaseModel
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from mqtt_client import publish_feed, set_current_user_email
+from mqtt_client import publish_feed, set_current_user_email, get_bowl_weight, get_hopper_status
 from chatbot_service import ask_gemini
-from firebase_service import get_feeder_status, get_today_feedings, get_historical_feedings
+from firebase_service import get_today_feedings, get_historical_feedings
 from prediction_model import calculate_ema
 # Request models
 class UserData(BaseModel):
@@ -27,12 +27,11 @@ app.add_middleware(
 # API Endpoints
 @app.get("/status")
 def get_status():
-    current_data = get_feeder_status()
     today_feedings = get_today_feedings()
     # Return sample data for displaying the feeder status on the frontend
     return {
-        "hopper_level": current_data.get("hopper_level", 0),
-        "bowl_weight": current_data.get("bowl_weight", 0),
+        "hopper_level": get_hopper_status(),
+        "bowl_weight": get_bowl_weight(),
         "today_feedings": today_feedings
     }
 
