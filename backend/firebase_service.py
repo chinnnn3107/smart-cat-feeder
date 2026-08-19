@@ -10,18 +10,14 @@ db = firestore.client()
 
 def update_current_status(payload: dict):
     try:
-        # 1. Update real-time status (overwrite)
-        payload["last_updated"] = datetime.now(timezone.utc).isoformat()
-        db.collection("feeder_status").document("current_status").set(payload, merge=True)
-
-        # 2. Logging sensor data
+        # Logging sensor data
         log_payload = payload.copy()
         log_payload["timestamp"] = datetime.now(timezone.utc).isoformat()
         db.collection("sensor_logs").add(log_payload)
 
-        print(f"[Firestore] Updated current_status: {payload} & logged sensor data.")
+        print(f"[Firestore] Logged sensor data.")
     except Exception as e:
-        print(f"[Firestore] Error updating current_status: {e}")
+        print(f"[Firestore] Error logging sensor data: {e}")
 
 def log_feed_event(event_type: str):
     try:
@@ -46,15 +42,6 @@ def log_feed_event(event_type: str):
         print(f"[Firestore] Logged {event_type} and incremented daily count.")
     except Exception as e:
         print(f"[Firestore] Error logging feed event: {e}")
-
-def get_feeder_status() -> dict:
-    try:
-        doc = db.collection("feeder_status").document("current_status").get()
-        if doc.exists:
-            return doc.to_dict()
-        return {"hopper_level": 0, "bowl_weight": 0}
-    except Exception:
-        return {"hopper_level": 0, "bowl_weight": 0}
 
 def get_today_feedings() -> int:
     try:
