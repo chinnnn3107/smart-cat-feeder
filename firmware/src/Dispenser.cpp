@@ -20,12 +20,13 @@ void Dispenser_Trigger() {
     isFeeding  = true;
     feedStartTime = millis();
     servo.write(90);
+
 }
 
 // Checks whether the feeding time has finished and closes the dispenser
 void Dispenser_Loop() {
-    // TODO: Replace 5000 ms with the actual feeding duration after testing
-    if (isFeeding && millis() - feedStartTime >= 5000) {
+    // Wait 3000 ms before returning to 0
+    if (isFeeding && millis() - feedStartTime >= 3000) {
         servo.write(0);
         isFeeding  = false;
         Serial.println("[Dispenser] Feed completed");

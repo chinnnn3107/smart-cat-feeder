@@ -6,8 +6,8 @@
 namespace {
 
 // Loadcell pins
-const int PIN_LOADCELL_DOUT = 4;
-const int PIN_LOADCELL_SCK  = 5;
+const int PIN_LOADCELL_DOUT = 16;
+const int PIN_LOADCELL_SCK  = 4;
 
 // Ultrasonic pins
 const int PIN_ULTRASONIC_TRIG = 6;
@@ -17,7 +17,7 @@ const int PIN_ULTRASONIC_ECHO = 7;
 const int PIN_SERVO = 15;
 
 // Button pins
-const int PIN_BUTTON = 0; 
+const int PIN_BUTTON = 18; 
 
 // MQTT Configuration
 static const char* MQTT_SERVER = "YOUR_HIVEMQ_URL.hivemq.cloud";
@@ -31,7 +31,7 @@ static const char* TOPIC_HOPPER_STATUS = "feeder/hopper_status";
 static const char* TOPIC_FEED          = "feeder/feed";
 static const char* TOPIC_PHYSICAL_FEED = "feeder/physical_feed";
 // Loadcell
-const float SCALE_CALIBRATION_FACTOR = 2280.0; // [NEED FIXED] Base on real measurement
+const float SCALE_CALIBRATION_FACTOR = 100.0; // Base on real measurement
 const float MIN_WEIGHT_CHANGE_GRAMS  = 5.0;    // Only MQTT when change > 5 grams
 
 // Hopper 

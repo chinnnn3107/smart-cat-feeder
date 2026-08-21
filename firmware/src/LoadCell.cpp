@@ -46,16 +46,26 @@ void LoadCell_Init() {
     Serial.println("[LoadCell] HX711 ready.");
 }
 
+static float weightSum = 0.0;
+static int sampleCount = 0;
+
 // Read weight and publish if needed. Call repeatedly in loop()
 void LoadCell_Loop() {
     if (!hx711.is_ready()) return;
 
-    // Read average of 5 samples
-    float weight = hx711.get_units(5);
+    // Non-blocking read (1 sample at a time)
+    weightSum += hx711.get_units(1);
+    sampleCount++;
+
+    // Wait until we have 5 samples to average
+    if (sampleCount < 5) return;
+
+    float weight = weightSum / 5.0;
+    weightSum = 0.0; // Reset for next average
+    sampleCount = 0;
 
     // Clamp negative values to 0
     if (weight < 0.0) weight = 0.0;
-
 
     float change  = abs(weight - lastPublishedWeight);
     unsigned long elapsed = millis() - lastPublishTime;
