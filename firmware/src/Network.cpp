@@ -26,11 +26,6 @@ static void MQTT_Callback(char* topic, byte* payload, unsigned int length) {
         Serial.println("[MQTT] Received feed command on web!");
         Dispenser_Trigger();
     }
-
-    // Tin nhắn đến từ kênh khác? (Ví dụ thêm sau)
-    // else if (String(topic) == TOPIC_KHAC) {
-    //     // Xử lý việc khác
-    // }
 }
 
 // MQTT Reconnect (runs every 5s)
@@ -57,12 +52,6 @@ static void MQTT_Reconnect() {
 }
 // Initializes WiFi via WiFiManager and MQTT. Call once in setup()
 void Network_Init() {
-#ifdef WOKWI
-    WiFi.begin("Wokwi-GUEST", "", 6);
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(100);
-    }
-#else
     Serial.println("[WiFi] Initalizing WiFiManger...");
     WiFiManager wm;
     wm.setConfigPortalTimeout(180); // setup off after 3 minutes without connection
@@ -73,7 +62,7 @@ void Network_Init() {
         delay(3000);
         ESP.restart();
     }
-#endif
+
 
     Serial.print("[WiFi] Connected! IP Address: ");
     Serial.println(WiFi.localIP());
