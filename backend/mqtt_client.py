@@ -137,9 +137,13 @@ def publish_feed():
     """
     Publish a feed trigger command ('feed') to the feeder hardware over MQTT.
     """
-    log_feed_event(event_type="web_feed")
+    result = mqtt_client.publish(FEED_TOPIC, "feed")
 
-    return mqtt_client.publish(FEED_TOPIC, "feed")
+    if result.rc != 0:
+        return False
+
+    log_feed_event(event_type="web_feed")
+    return True
 
 
 def get_bowl_weight():
