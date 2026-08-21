@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from mqtt_client import publish_feed, set_current_user_email, get_bowl_weight, get_hopper_status
 from chatbot_service import ask_gemini
 from firebase_service import get_today_feedings, get_historical_feedings
@@ -28,7 +29,7 @@ app.add_middleware(
 @app.get("/status")
 def get_status():
     today_feedings = get_today_feedings()
-    # Return sample data for displaying the feeder status on the frontend
+    # Return data for displaying the feeder status on the frontend
     return {
         "hopper_level": get_hopper_status(),
         "bowl_weight": get_bowl_weight(),
@@ -37,34 +38,56 @@ def get_status():
 
 @app.post("/feed")
 def feed():
-    # Publish a feed command to the ESP32 through MQTT
-    publish_feed()
-    # Tell the frontend that the request was accepted
-    return {
-        "accepted": True
-    }
+    # Publish a feed command to the ESP32 through MQTT.
+    success = publish_feed()
+
+    # Confirm whether the command was successfully sent to the MQTT broker.
+    if success:
+        return {"success": True}
+
+    return JSONResponse(
+        # 503: Service Unavailable
+        status_code=503,
+        content={"success": False},
+    )
 
 @app.post("/chat")
 def chat(request: dict):
-    # Check if the request contains the "message" key
-    if "message" not in request:
-        return {"error": "Message is required."}
+    message = request.get("message")
 
-    # Get the user's message from the request body
-    message = request["message"]
+    if not isinstance(message, str):
+        return JSONResponse(
+            # 400: Wrong data
+            status_code=400,
+            content={"error": "Message must be a string."},
+        )
 
-    if message.strip() == "":
-        return {"error": "Message cannot be empty."}
+    if not message.strip():
+        return JSONResponse(
+            # 400: Wrong data
+            status_code=400,
+            content={"error": "Message cannot be empty."},
+        )
 
-    feeder_data = get_status()
 
     try:
+        feeder_data = get_status()
         feeder_data["prediction_count"] = predict_feeding()["predicted_meals"]
+
         response = ask_gemini(message, feeder_data)
-        return { "response": response }
+        return JSONResponse(
+            # 200: Successful
+            status_code=200,
+            content={"response": response},
+        )
     
     except Exception:
-        return { "error": "Failed to get response from Gemini." }
+        # Return a JSON error if status retrieval, prediction, or Gemini fails.
+        return JSONResponse(
+            # 500: Server error
+            status_code=500,
+            content={"error": "Failed to get chatbot response."},
+        )
 
 @app.post("/sync-user")
 def sync_user(data: UserData):

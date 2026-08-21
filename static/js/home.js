@@ -23,21 +23,27 @@ async function getStatus() {
 
 // Send a manual feeding request to the backend API (/feed)
 async function requestFeed() {
-  const response = await fetch("http://127.0.0.1:8000/feed", {
-    method: "POST",
-  });
+  try {
+    const response = await fetch("http://127.0.0.1:8000/feed", {
+      method: "POST",
+    });
 
-  // Parse API response
-  const data = await response.json();
+    const data = await response.json();
+    const success = response.ok && data.success;
 
-  if (data.accepted) {
-    feedNotification.textContent = "Feed request sent!";
-    feedNotification.style.color = "green";
+    feedNotification.textContent = success
+      ? "Feed request sent!"
+      : "Failed to send command!";
 
-    setTimeout(function () {
-      feedNotification.textContent = "";
-    }, 3000);
+    feedNotification.style.color = success ? "green" : "red";
+  } catch (error) {
+    feedNotification.textContent = "Cannot connect to server!";
+    feedNotification.style.color = "red";
   }
+
+  setTimeout(() => {
+    feedNotification.textContent = "";
+  }, 3000);
 }
 
 // Bind event listener to manual feed button

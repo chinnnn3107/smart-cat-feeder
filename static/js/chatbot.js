@@ -13,6 +13,7 @@ function addMessage(text, className) {
   // Add the new message to the messages container
   messages.appendChild(message);
 
+  // Automatically scroll to the latest message
   messages.scrollTop = messages.scrollHeight;
 }
 
@@ -29,21 +30,37 @@ async function handleSendMessage(event) {
   // Clear the input field
   inputMessage.value = "";
 
-  const response = await fetch("http://127.0.0.1:8000/chat", {
-    method: "POST",
+  try {
+    const response = await fetch("http://127.0.0.1:8000/chat", {
+      method: "POST",
 
-    headers: {
-      "Content-Type": "application/json",
-    },
+      headers: {
+        "Content-Type": "application/json",
+      },
 
-    body: JSON.stringify({
-      message: message,
-    }),
-  });
+      body: JSON.stringify({
+        message: message,
+      }),
+    });
 
-  // Display Gemini's response
-  const data = await response.json();
-  addMessage(data.response, "bot-message");
+    const data = await response.json();
+
+    if (!response.ok) {
+      addMessage(
+        data.error || "Something went wrong. Please try again.",
+        "bot-message",
+      );
+      return;
+    }
+
+    addMessage(data.response, "bot-message");
+  } catch (error) {
+    // fetch throws when the server is unreachable or the response is invalid JSON.
+    addMessage(
+      "Cannot connect to the server. Please try again.",
+      "bot-message",
+    );
+  }
 }
 
 // Listen for form submission
