@@ -1,14 +1,12 @@
-from pydantic import BaseModel
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from mqtt_client import publish_feed, set_current_user_email, get_bowl_weight, get_hopper_status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import firebase_admin.auth as fb_auth
+from mqtt_client import publish_feed, set_current_user, get_bowl_weight, get_hopper_status
 from chatbot_service import ask_gemini
 from firebase_service import get_today_feedings, get_historical_feedings
 from prediction_model import calculate_ema
-# Request models
-class UserData(BaseModel):
-    email: str
 
 # Initialize the FastAPI backend application
 app = FastAPI()
@@ -25,10 +23,26 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# API Endpoints
+# --- Auth dependency ---
+
+security = HTTPBearer()
+
+def get_verified_uid(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
+    """
+    FastAPI dependency that verifies a Firebase ID Token from the Authorization header.
+    Returns the user's Firebase UID on success, or raises HTTP 401 on failure.
+    """
+    try:
+        decoded = fb_auth.verify_id_token(credentials.credentials)
+        return decoded["uid"]
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid or expired token.")
+
+# --- API Endpoints ---
+
 @app.get("/status")
-def get_status():
-    today_feedings = get_today_feedings()
+def get_status(uid: str = Depends(get_verified_uid)):
+    today_feedings = get_today_feedings(user_id=uid)
     # Return data for displaying the feeder status on the frontend
     return {
         "hopper_level": get_hopper_status(),
@@ -37,9 +51,9 @@ def get_status():
     }
 
 @app.post("/feed")
-def feed():
+def feed(uid: str = Depends(get_verified_uid)):
     # Publish a feed command to the ESP32 through MQTT.
-    success = publish_feed()
+    success = publish_feed(user_id=uid)
 
     # Confirm whether the command was successfully sent to the MQTT broker.
     if success:
@@ -52,7 +66,7 @@ def feed():
     )
 
 @app.post("/chat")
-def chat(request: dict):
+def chat(request: dict, uid: str = Depends(get_verified_uid)):
     message = request.get("message")
 
     if not isinstance(message, str):
@@ -69,10 +83,22 @@ def chat(request: dict):
             content={"error": "Message cannot be empty."},
         )
 
-
     try:
-        feeder_data = get_status()
-        feeder_data["prediction_count"] = predict_feeding()["predicted_meals"]
+        # Build feeder context directly using uid (avoids internal route call)
+        today_feedings = get_today_feedings(user_id=uid)
+        history_data = get_historical_feedings(user_id=uid, days=7)
+        history_data.reverse()
+        eaten_list = [day["eaten"] for day in history_data]
+        feed_count_list = [day["count"] for day in history_data]
+        predicted_eaten = calculate_ema(eaten_list, days=7)
+        predicted_count = round(calculate_ema(feed_count_list, days=7))
+
+        feeder_data = {
+            "hopper_level": get_hopper_status(),
+            "bowl_weight": get_bowl_weight(),
+            "today_feedings": today_feedings,
+            "prediction_count": predicted_count,
+        }
 
         response = ask_gemini(message, feeder_data)
         return JSONResponse(
@@ -80,7 +106,7 @@ def chat(request: dict):
             status_code=200,
             content={"response": response},
         )
-    
+
     except Exception:
         # Return a JSON error if status retrieval, prediction, or Gemini fails.
         return JSONResponse(
@@ -90,34 +116,46 @@ def chat(request: dict):
         )
 
 @app.post("/sync-user")
-def sync_user(data: UserData):
-    set_current_user_email(data.email)
+def sync_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """
+    Called once after login to store the current user's UID and email on the server.
+    Used to attribute physical button press events (from ESP32 via MQTT) to the right user,
+    and to send hopper low-stock email alerts to the correct address.
+    """
+    try:
+        decoded = fb_auth.verify_id_token(credentials.credentials)
+        uid = decoded["uid"]
+        email = decoded.get("email", "")
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid or expired token.")
 
-    print(f"Current user: {data.email}")
+    set_current_user(uid=uid, email=email)
+    print(f"[Auth] Current user synced: {email} (uid={uid})")
 
     return {
         "status": "success",
-        "email": data.email,
+        "uid": uid,
+        "email": email,
     }
 
 @app.get("/history")
-def get_history():
-    history_data = get_historical_feedings(7)
+def get_history(uid: str = Depends(get_verified_uid)):
+    history_data = get_historical_feedings(user_id=uid, days=7)
     return {"history": history_data}
 
 @app.get("/predict-feeding")
-def predict_feeding():
-    history_data = get_historical_feedings(7)
-    
-    # Data order in Firebase is from new to old so we have to reverse it 
-    history_data.reverse() 
-    
-    eaten_list = [day['eaten'] for day in history_data]
-    feed_count_list = [day['count'] for day in history_data]
-    
+def predict_feeding(uid: str = Depends(get_verified_uid)):
+    history_data = get_historical_feedings(user_id=uid, days=7)
+
+    # Data order in Firebase is from new to old so we have to reverse it
+    history_data.reverse()
+
+    eaten_list = [day["eaten"] for day in history_data]
+    feed_count_list = [day["count"] for day in history_data]
+
     predicted_eaten = calculate_ema(eaten_list, days=7)
     predicted_count = round(calculate_ema(feed_count_list, days=7))
-    
+
     return {
         "predicted_grams": predicted_eaten,
         "predicted_meals": predicted_count

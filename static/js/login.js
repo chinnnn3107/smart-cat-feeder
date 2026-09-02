@@ -26,10 +26,15 @@ async function handleLogin(event) {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
+    // Get the Firebase ID Token and send it to the backend to sync the current user.
+    // The backend verifies the token and stores the user's uid + email for
+    // attributing physical button press events (from ESP32 via MQTT).
+    const idToken = await user.getIdToken();
     const response = await fetch("http://127.0.0.1:8000/sync-user", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: user.email }),
+      headers: {
+        Authorization: `Bearer ${idToken}`,
+      },
     });
 
     const result = await response.json();

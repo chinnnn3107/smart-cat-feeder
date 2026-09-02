@@ -1,3 +1,5 @@
+import { authFetch } from "./api.js";
+
 // Cache DOM element references for chatbot UI
 const inputMessage = document.getElementById("input-message");
 const chatForm = document.getElementById("chat-form");
@@ -31,7 +33,7 @@ async function handleSendMessage(event) {
   inputMessage.value = "";
 
   try {
-    const response = await fetch("http://127.0.0.1:8000/chat", {
+    const response = await authFetch("http://127.0.0.1:8000/chat", {
       method: "POST",
 
       headers: {
