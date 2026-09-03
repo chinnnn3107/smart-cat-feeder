@@ -1,4 +1,11 @@
 import os
+import sys
+
+# Force immediate log flushing on Render/Production servers
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(line_buffering=True)
+    sys.stderr.reconfigure(line_buffering=True)
+
 import json
 from dotenv import load_dotenv
 import paho.mqtt.client as mqtt
