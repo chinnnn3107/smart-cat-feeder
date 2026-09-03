@@ -1,6 +1,8 @@
+import os
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import firebase_admin.auth as fb_auth
 from mqtt_client import publish_feed, set_current_user, get_bowl_weight, get_hopper_status
@@ -11,17 +13,36 @@ from prediction_model import calculate_ema
 # Initialize the FastAPI backend application
 app = FastAPI()
 
-# Allow the frontend running on Live Server port 5500 to access the API
+# Allow cross-origin requests from any frontend domain
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://127.0.0.1:5500",
-        "http://localhost:5500",
-    ],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Resolve project directories for serving static files & HTML pages
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+STATIC_DIR = os.path.join(BASE_DIR, "static")
+TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
+
+if os.path.exists(STATIC_DIR):
+    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+@app.get("/", response_class=FileResponse)
+def read_root():
+    home_file = os.path.join(TEMPLATES_DIR, "home.html")
+    if os.path.exists(home_file):
+        return FileResponse(home_file)
+    return JSONResponse({"message": "Smart Cat Feeder Backend API is operational"})
+
+@app.get("/templates/{page_name}")
+def serve_template(page_name: str):
+    template_file = os.path.join(TEMPLATES_DIR, page_name)
+    if os.path.exists(template_file) and template_file.endswith(".html"):
+        return FileResponse(template_file)
+    raise HTTPException(status_code=404, detail="Page not found")
 
 # --- Auth dependency ---
 

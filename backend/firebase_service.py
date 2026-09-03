@@ -1,11 +1,33 @@
+import os
+import json
+import base64
 import firebase_admin
 from firebase_admin import credentials, firestore
 from datetime import datetime, timezone
 from datetime import timedelta
 
-# Initialize Firebase
-cred = credentials.Certificate("serviceAccountKey.json")
-firebase_admin.initialize_app(cred)
+# Initialize Firebase credentials securely
+env_account_json = os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON")
+
+if env_account_json:
+    try:
+        # Try raw JSON string first
+        account_info = json.loads(env_account_json)
+    except Exception:
+        # Fallback to base64 decoding if encoded
+        decoded_json = base64.b64decode(env_account_json).decode("utf-8")
+        account_info = json.loads(decoded_json)
+    cred = credentials.Certificate(account_info)
+elif os.path.exists("serviceAccountKey.json"):
+    cred = credentials.Certificate("serviceAccountKey.json")
+elif os.path.exists(os.path.join(os.path.dirname(__file__), "serviceAccountKey.json")):
+    cred = credentials.Certificate(os.path.join(os.path.dirname(__file__), "serviceAccountKey.json"))
+else:
+    cred = credentials.ApplicationDefault()
+
+if not firebase_admin._apps:
+    firebase_admin.initialize_app(cred)
+
 db = firestore.client()
 
 def _user_ref(user_id: str):
