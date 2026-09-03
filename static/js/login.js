@@ -1,5 +1,6 @@
 import { auth } from "./auth.js";
 import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { API_BASE_URL } from "./config.js";
 
 // Get elements from the DOM
 const loginForm = document.getElementById("login-form");
@@ -30,7 +31,7 @@ async function handleLogin(event) {
     // The backend verifies the token and stores the user's uid + email for
     // attributing physical button press events (from ESP32 via MQTT).
     const idToken = await user.getIdToken();
-    const response = await fetch("http://127.0.0.1:8000/sync-user", {
+    const response = await fetch(`${API_BASE_URL}/sync-user`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${idToken}`,

@@ -1,0 +1,12 @@
+.git
+.gitignore
+.vscode
+firmware
+tmp
+output
+backend/__pycache__
+backend/venv
+*.pyc
+*.pyo
+*.pyd
+.env
