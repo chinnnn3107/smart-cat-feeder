@@ -63,10 +63,10 @@ Web Browser ------ HTTP ----> FastAPI Backend ----> Cloud Firestore
 ```text
 smart-cat-feeder/
 |-- backend/                        # FastAPI backend application
-|   |-- app.py                      # REST endpoints and CORS configuration
+|   |-- app.py                      # REST endpoints, CORS, static file serving
 |   |-- chatbot_service.py          # Gemini prompt and feeder context
 |   |-- email_service.py            # Gmail SMTP low-food alerts
-|   |-- firebase_service.py         # Firestore sensor, feeding, and daily logs
+|   |-- firebase_service.py         # Firestore sensor, feeding, and daily logs (env & file credentials)
 |   |-- mqtt_client.py              # MQTT connection, subscriptions, and publishing
 |   |-- prediction_model.py         # Seven-day EMA calculation
 |   |-- requirements.txt            # Python dependencies
@@ -86,14 +86,19 @@ smart-cat-feeder/
 |   `-- wokwi.toml                  # Wokwi simulation configuration
 |-- static/
 |   |-- css/                        # Page and shared stylesheets
-|   `-- js/                         # Auth, dashboard, logs, chatbot, and logout scripts
+|   `-- js/                         # Auth, dashboard, logs, chatbot, config, and logout scripts
+|       `-- config.js               # Dynamic API base URL resolution
 |-- templates/
 |   |-- chatbot.html                # Context-aware AI assistant page
 |   |-- home.html                   # Status dashboard and remote Feed button
 |   |-- login.html                  # User login page
 |   |-- logs.html                   # Seven-day chart and prediction page
 |   `-- signup.html                 # User registration page
+|-- .dockerignore                   # Docker ignore rules
 |-- .gitignore
+|-- Dockerfile                      # Production Docker container definition
+|-- Procfile                        # PaaS web process start command
+|-- render.yaml                     # Render.com Blueprint deployment configuration
 `-- README.md
 ```
 
@@ -209,6 +214,25 @@ The frontend currently calls the backend at `http://127.0.0.1:8000`.
 2. Adjust the sensor calibration values in `Config.h` for physical hardware when required.
 3. For Wokwi, open the `firmware/` directory with the PlatformIO and Wokwi extensions, build the firmware, and start the simulation using `diagram.json` and `wokwi.toml`.
 4. For a physical ESP32-S3, use PlatformIO to build and upload the firmware, then use the `SmartFeeder_WiFI` access point to provision Wi-Fi if the device cannot connect automatically.
+
+### 4. Production Cloud Deployment (Render.com)
+
+1. Create a new **Web Service** on [Render.com](https://render.com) and connect this GitHub repository.
+2. Select **Python 3** as the runtime environment.
+3. Set the **Build Command**:
+   ```bash
+   pip install -r backend/requirements.txt
+   ```
+4. Set the **Start Command**:
+   ```bash
+   cd backend && uvicorn app:app --host 0.0.0.0 --port $PORT
+   ```
+5. Add the required **Environment Variables** in Render Dashboard:
+   - `MQTT_BROKER`, `MQTT_PORT` (`8883`), `MQTT_USERNAME`, `MQTT_PASSWORD`
+   - `SMTP_HOST` (`smtp.gmail.com`), `SMTP_PORT` (`587`), `SMTP_EMAIL`, `SMTP_PASSWORD`
+   - `GEMINI_API_KEY`
+   - `FIREBASE_SERVICE_ACCOUNT_JSON`: Full JSON content of `serviceAccountKey.json`.
+6. Add your production Render URL (e.g., `smart-cat-feeder-304b.onrender.com`) to **Firebase Console -> Authentication -> Authorized Domains**.
 
 ---
 
