@@ -1,5 +1,6 @@
 import { auth } from "./auth.js";
 import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { API_BASE_URL } from "./config.js";
 
 // Get elements from the DOM
 const signupForm = document.getElementById("signup-form");
@@ -30,7 +31,7 @@ async function handleSignup(event) {
     );
     const user = userCredential.user;
 
-    const response = await fetch("http://127.0.0.1:8000/sync-user", {
+    const response = await fetch(`${API_BASE_URL}/sync-user`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: user.email }),
