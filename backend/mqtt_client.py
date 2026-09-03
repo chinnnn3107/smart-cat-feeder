@@ -22,11 +22,17 @@ PHYSICAL_FEED_TOPIC = "feeder/physical_feed"
 # Global state
 bowl_weight = None
 hopper_status = None
-current_user_email = None
 last_bowl_weight = None
 
-def set_current_user_email(email: str):
-    global current_user_email
+# Stores the last logged-in user's identity.
+# Used to attribute physical button press events (no HTTP context) to a user.
+current_user_uid = None
+current_user_email = None
+
+def set_current_user(uid: str, email: str):
+    """Store the current user's UID (for Firestore) and email (for alerts)."""
+    global current_user_uid, current_user_email
+    current_user_uid = uid
     current_user_email = email
 
 # MQTT callback handlers
@@ -71,12 +77,15 @@ def on_message(client, userdata, message):
                 weight_diff = last_bowl_weight - bowl_weight
                 
                 # If weight decreases because pet ate and difference is less than 50 grams (from changing bowl)
-                if 0 < weight_diff < 50:
-                    update_daily_eaten(weight_diff)
+                if 0 < weight_diff < 50 and current_user_uid:
+                    update_daily_eaten(weight_diff, user_id=current_user_uid)
                     
             last_bowl_weight = bowl_weight
             
-            update_current_status(data)
+            if current_user_uid:
+                update_current_status(data, user_id=current_user_uid)
+            else:
+                print("[Firestore] No logged-in user — skipping sensor log")
         except (json.JSONDecodeError, KeyError, TypeError) as error:
             print(f"[MQTT] Invalid bowl weight payload: {error}")
     
@@ -86,12 +95,13 @@ def on_message(client, userdata, message):
             data = json.loads(payload)
             hopper_status = data["hopper_level"]
             print(f"[MQTT] Hopper level: {hopper_status}%")
-            update_current_status(data)
 
+            if current_user_uid:
+                update_current_status(data, user_id=current_user_uid)
             if current_user_email:
                 checkHopperAlert(hopper_status, current_user_email)
             else:
-                print("[Email] No logged-in user email")
+                print("[Email] No logged-in user email — skipping hopper log")
 
         except (json.JSONDecodeError, KeyError, TypeError) as error:
             print(f"[MQTT] Invalid hopper status payload: {error}")
@@ -101,7 +111,10 @@ def on_message(client, userdata, message):
         try:
             data = json.loads(payload)
             print(f"[MQTT] Physical button feed: {data}")
-            log_feed_event(event_type="manual_feed")
+            if current_user_uid:
+                log_feed_event(event_type="manual_feed", user_id=current_user_uid)
+            else:
+                print("[Firestore] No logged-in user — skipping physical feed log")
         except (json.JSONDecodeError, TypeError) as error:
             print(f"[MQTT] Invalid physical feed payload: {error}")
 
@@ -133,16 +146,17 @@ mqtt_client.loop_start()
 
 
 # Public helper functions
-def publish_feed():
+def publish_feed(user_id: str):
     """
     Publish a feed trigger command ('feed') to the feeder hardware over MQTT.
+    user_id comes from the verified Firebase token in the HTTP request.
     """
     result = mqtt_client.publish(FEED_TOPIC, "feed")
 
     if result.rc != 0:
         return False
 
-    log_feed_event(event_type="web_feed")
+    log_feed_event(event_type="web_feed", user_id=user_id)
     return True
 
 

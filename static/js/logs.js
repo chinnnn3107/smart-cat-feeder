@@ -1,9 +1,11 @@
+import { authFetch } from "./api.js";
+
 document.addEventListener("DOMContentLoaded", async () => {
   const chartCanvas = document.getElementById("feeding-chart");
   
   try {
-    // Get history data from backend
-    const response = await fetch("http://127.0.0.1:8000/history");
+    // Get history data from backend (token injected automatically by authFetch)
+    const response = await authFetch("http://127.0.0.1:8000/history");
     const data = await response.json();
     const history = data.history;
     
@@ -63,7 +65,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     predictionContainer.innerHTML = "<span><b>Calculating prediction...</b></span>";
     
     // Get and show prediction data
-    const predictResponse = await fetch("http://127.0.0.1:8000/predict-feeding");
+    const predictResponse = await authFetch("http://127.0.0.1:8000/predict-feeding");
     const predictData = await predictResponse.json();
     predictionContainer.innerHTML = `<span><b>DS Prediction:</b> Your pet will need approximately <b>${predictData.predicted_meals} meals</b> (${predictData.predicted_grams}g total) tomorrow.</span>`;
     

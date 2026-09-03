@@ -1,3 +1,5 @@
+import { authFetch } from "./api.js";
+
 // Cache DOM element references for feeder UI dashboard
 const feedNumber = document.getElementById("feedings-number");
 const bowlWeight = document.getElementById("bowl-weight");
@@ -8,7 +10,7 @@ const feedNotification = document.getElementById("feed-notification");
 
 // Fetch telemetry metrics from backend API (/status) and update UI widgets
 async function getStatus() {
-  const response = await fetch("http://127.0.0.1:8000/status", {
+  const response = await authFetch("http://127.0.0.1:8000/status", {
     method: "GET",
   });
 
@@ -24,7 +26,7 @@ async function getStatus() {
 // Send a manual feeding request to the backend API (/feed)
 async function requestFeed() {
   try {
-    const response = await fetch("http://127.0.0.1:8000/feed", {
+    const response = await authFetch("http://127.0.0.1:8000/feed", {
       method: "POST",
     });
 
