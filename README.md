@@ -27,7 +27,6 @@ An intelligent, full-stack IoT system for automated cat feeding, real-time food 
 
 ```
 smart-cat-feeder/
-├── app.py -> backend/app.py       # FastAPI application entry point
 ├── Dockerfile                      # Production Docker container definition
 ├── Procfile                        # PaaS web process configuration
 ├── render.yaml                     # Render.com Blueprint deployment configuration
@@ -57,31 +56,33 @@ smart-cat-feeder/
 │   ├── platformio.ini              # PlatformIO environment configuration
 │   └── wokwi.toml                  # Wokwi simulation configuration
 │
-├── static/                         # Frontend Static Assets
-│   ├── css/                        # Custom page stylesheets
-│   │   ├── reset.css              # Global CSS reset
-│   │   ├── style.css              # Shared navigation & layout styles
-│   │   ├── home.css               # Dashboard & widget styles
-│   │   ├── logs.css               # Chart.js statistics styles
-│   │   └── chatbot.css            # Gemini AI chat interface styles
-│   └── js/                         # Frontend ES6 Modules
-│       ├── api.js                 # Authenticated fetch wrapper with Firebase ID Token
-│       ├── auth.js                # Firebase Auth SDK initialization
-│       ├── auth-guard.js          # Authentication page route guard
-│       ├── config.js              # Dynamic API base URL resolution
-│       ├── home.js                # Dashboard status polling & feed trigger
-│       ├── logs.js                # Chart.js 7-day history & EMA prediction display
-│       ├── chatbot.js             # Gemini AI chatbot UI logic
-│       ├── login.js               # Login form handler & user sync
-│       ├── signup.js              # Registration form handler & user sync
-│       └── logout.js              # Logout handler
-│
-└── templates/                      # HTML Views
-    ├── home.html                   # Main dashboard & remote feed control view
-    ├── logs.html                   # 7-day historical chart & prediction view
-    ├── chatbot.html                # Gemini AI assistant chat view
-    ├── login.html                  # User login view
-    └── signup.html                 # User registration view
+└── frontend/                       # Web frontend assets and HTML views
+    ├── static/                     # Frontend Static Assets
+    │   ├── css/                    # Custom page stylesheets
+    │   │   ├── reset.css           # Global CSS reset
+    │   │   ├── style.css           # Shared navigation & layout styles
+    │   │   ├── home.css            # Dashboard & widget styles
+    │   │   ├── login_signup.css    # Login & registration styles
+    │   │   ├── logs.css            # Chart.js statistics styles
+    │   │   └── chatbot.css         # Gemini AI chat interface styles
+    │   └── js/                     # Frontend ES6 Modules
+    │       ├── api.js              # Authenticated fetch wrapper with Firebase ID Token
+    │       ├── auth.js             # Firebase Auth SDK initialization
+    │       ├── auth-guard.js       # Authentication page route guard
+    │       ├── config.js           # Dynamic API base URL resolution
+    │       ├── home.js             # Dashboard status polling & feed trigger
+    │       ├── logs.js             # Chart.js 7-day history & EMA prediction display
+    │       ├── chatbot.js          # Gemini AI chatbot UI logic
+    │       ├── login.js            # Login form handler & user sync
+    │       ├── signup.js           # Registration form handler & user sync
+    │       └── logout.js           # Logout handler
+    │
+    └── templates/                  # HTML Views
+        ├── home.html               # Main dashboard & remote feed control view
+        ├── logs.html               # 7-day historical chart & prediction view
+        ├── chatbot.html            # Gemini AI assistant chat view
+        ├── login.html              # User login view
+        └── signup.html             # User registration view
 ```
 
 ## 🚀 Quick Start
@@ -253,7 +254,7 @@ docker run -p 8000:8000 --env-file backend/.env smart-cat-feeder
 
 #### 1. FastAPI Backend (`backend/app.py`)
 - Verifies Firebase ID Tokens using `get_verified_uid` dependency.
-- Mounts `/static` directory for CSS/JS assets and serves HTML views (`/`, `/templates/{page_name}`).
+- Mounts `frontend/static/` at `/static` for CSS/JS assets and serves HTML views (`/`, `/templates/{page_name}`).
 - Configured with `CORSMiddleware` for cross-origin request handling.
 
 #### 2. MQTT Client Manager (`backend/mqtt_client.py`)
@@ -289,7 +290,7 @@ users/{user_id}/
 ### Authentication State Flow
 1. User logs in on frontend via Firebase Authentication (`login.js`).
 2. Firebase returns a short-lived **Firebase ID Token**.
-3. Frontend wrapper `authFetch` (`static/js/api.js`) automatically retrieves a fresh token and injects `Authorization: Bearer <token>` header into every API request.
+3. Frontend wrapper `authFetch` (`frontend/static/js/api.js`) automatically retrieves a fresh token and injects `Authorization: Bearer <token>` header into every API request.
 4. Backend FastAPI dependency `get_verified_uid` verifies the token using Firebase Admin SDK and scopes all Firestore database reads/writes strictly to the authenticated `uid`.
 
 ---
@@ -517,9 +518,6 @@ const float HOPPER_FULL_DISTANCE_CM  = 5.0;
 - [x] Google Gemini AI Assistant integration
 - [x] Seven-day EMA feeding demand prediction
 - [x] Production Cloud Deployment on Render.com
-- [ ] Mobile Application (Flutter / React Native)
-- [ ] Multi-Cat RFID Recognition System
-- [ ] AI Camera Module for Appetite & Health Tracking
 
 ---
 
