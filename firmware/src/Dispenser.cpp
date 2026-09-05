@@ -1,6 +1,7 @@
 #include "Dispenser.h"
 #include "../include/Config.h"
 #include <ESP32Servo.h>
+#include <Network.h>
 
 static Servo servo;
 static bool isFeeding  = false;
@@ -30,5 +31,7 @@ void Dispenser_Loop() {
         servo.write(0);
         isFeeding  = false;
         Serial.println("[Dispenser] Feed completed");
+        if (MQTT_IsConnected())
+            MQTT_Publish(TOPIC_FEED_STATUS, "Feed completed", false);
     }
 }

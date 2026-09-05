@@ -15,6 +15,7 @@ An intelligent, full-stack IoT system for automated cat feeding, real-time food 
 - 🤖 **Context-Aware Gemini AI Assistant** - Advanced conversational AI powered by Google Gemini 3.5 Flash utilizing live feeder telemetry and historical predictions.
 - 📡 **Real-Time Telemetry** - Ultrasonic sensor food level percentage monitoring & HX711 load cell bowl weight measurement.
 - 🍽️ **Dual Feeding Trigger** - Dispenses food remotely from the web dashboard or locally via a debounced physical button.
+- 🔄 **Feed Status Confirmation & Lock** - Asynchronous feed status confirmation over MQTT with thread locking (`feed_lock`) and 10-second timeout guards to prevent duplicate motor triggers.
 - 🔒 **Encrypted TLS MQTT** - Secure communication through HiveMQ Cloud Broker over TLS (Port `8883`).
 - 📊 **Firestore Event Logging** - Per-user isolated tracking of sensor logs, daily feeding counts, and total food eaten.
 - 📈 **EMA Demand Prediction** - Exponential Moving Average predicting tomorrow's meal count and food consumption in grams.
@@ -200,6 +201,7 @@ docker run -p 8000:8000 --env-file backend/.env smart-cat-feeder
 | `feeder/bowl_weight` | ESP32 → Backend | `{"bowl_weight": 42.0, "device_id": "feeder-01"}` | Reports food bowl weight in grams |
 | `feeder/physical_feed` | ESP32 → Backend | `{"event": "manual_feed", "status": "success"}` | Reports a physical feed button press |
 | `feeder/feed` | Backend → ESP32 | `feed` | Commands ESP32 to rotate servo feed cycle |
+| `feeder/feed_status` | ESP32 → Backend | `Feed completed` | Reports completion of feeding motor rotation cycle |
 
 ---
 
@@ -225,6 +227,7 @@ docker run -p 8000:8000 --env-file backend/.env smart-cat-feeder
 │  │   Route Handlers             │   │
 │  │   - /status                  │   │
 │  │   - /feed                    │   │
+│  │   - /feed_status             │   │
 │  │   - /chat (Gemini AI)        │   │
 │  │   - /predict-feeding (EMA)   │   │
 │  └──────────────┬───────────────┘   │

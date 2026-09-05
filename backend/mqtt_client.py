@@ -7,6 +7,8 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stderr.reconfigure(line_buffering=True)
 
 import json
+from threading import Lock
+from time import monotonic
 from dotenv import load_dotenv
 import paho.mqtt.client as mqtt
 from firebase_service import update_current_status, log_feed_event, update_daily_eaten
@@ -25,11 +27,23 @@ FEED_TOPIC = "feeder/feed"
 BOWL_WEIGHT_TOPIC = "feeder/bowl_weight"
 HOPPER_STATUS_TOPIC = "feeder/hopper_status"
 PHYSICAL_FEED_TOPIC = "feeder/physical_feed"
+FEED_STATUS = "feeder/feed_status"
 
 # Global state
 bowl_weight = None
 hopper_status = None
 last_bowl_weight = None
+feed_status = None
+pending_feed = None
+feed_lock = Lock()
+FEED_TIMEOUT_SECONDS = 10
+
+def _expire_pending_feed():
+    """Release an overdue request. Caller must hold feed_lock."""
+    global pending_feed, feed_status
+    if pending_feed is not None and monotonic() >= pending_feed["deadline"]:
+        pending_feed = None
+        feed_status = "timeout"
 
 # Stores the last logged-in user's identity.
 # Used to attribute physical button press events (no HTTP context) to a user.
@@ -54,6 +68,7 @@ def on_connect(client, userdata, flags, reason_code, properties):
         client.subscribe(BOWL_WEIGHT_TOPIC)
         client.subscribe(HOPPER_STATUS_TOPIC)
         client.subscribe(PHYSICAL_FEED_TOPIC)
+        client.subscribe(FEED_STATUS)
 
         print(f"Subscribed to: {BOWL_WEIGHT_TOPIC}", {HOPPER_STATUS_TOPIC}, {PHYSICAL_FEED_TOPIC})
     else:
@@ -62,13 +77,12 @@ def on_connect(client, userdata, flags, reason_code, properties):
             f"Reason code: {reason_code}"
         )
 
-
 def on_message(client, userdata, message):
     """
     Callback executed when a new MQTT message is received.
     Updates the latest data.
     """
-    global bowl_weight, hopper_status
+    global bowl_weight, hopper_status, feed_status, pending_feed
 
     payload = message.payload.decode()
 
@@ -125,6 +139,20 @@ def on_message(client, userdata, message):
         except (json.JSONDecodeError, TypeError) as error:
             print(f"[MQTT] Invalid physical feed payload: {error}")
 
+    # Accept completion only for a pending web feed.
+    elif message.topic == FEED_STATUS and payload == "Feed completed":
+        with feed_lock:
+            _expire_pending_feed()
+            if pending_feed is None:
+                return
+            completed_feed = pending_feed
+            pending_feed = None
+            feed_status = "completed"
+
+        log_feed_event(
+            event_type=completed_feed["event_type"],
+            user_id=completed_feed["user_id"],
+        )
 
 # MQTT client initialization and setup
 # Instantiate MQTT client using Paho Callback API v2
@@ -151,20 +179,35 @@ mqtt_client.connect(
 
 mqtt_client.loop_start()
 
-
 # Public helper functions
 def publish_feed(user_id: str):
-    """
-    Publish a feed trigger command ('feed') to the feeder hardware over MQTT.
-    user_id comes from the verified Firebase token in the HTTP request.
-    """
-    result = mqtt_client.publish(FEED_TOPIC, "feed")
+    """Return accepted, busy, or publish_failed without retrying a feed."""
+    global pending_feed, feed_status
 
-    if result.rc != 0:
-        return False
+    with feed_lock:
+        _expire_pending_feed()
+        if pending_feed is not None:
+            return "busy"
 
-    log_feed_event(event_type="web_feed", user_id=user_id)
-    return True
+        pending_feed = {
+            "user_id": user_id,
+            "event_type": "web_feed",
+            "deadline": monotonic() + FEED_TIMEOUT_SECONDS,
+        }
+        feed_status = "pending"
+        try:
+            result = mqtt_client.publish(FEED_TOPIC, "feed")
+        except Exception:
+            pending_feed = None
+            feed_status = "publish_failed"
+            return "publish_failed"
+
+        if result.rc != 0:
+            pending_feed = None
+            feed_status = "publish_failed"
+            return "publish_failed"
+
+        return "accepted"
 
 
 def get_bowl_weight():
@@ -184,3 +227,9 @@ def get_hopper_status():
         int | float | None: Current hopper level percentage.
     """
     return hopper_status
+
+def get_feed_status():
+    """Read status and expire an overdue request, even if MQTT is silent."""
+    with feed_lock:
+        _expire_pending_feed()
+        return feed_status or "idle"
