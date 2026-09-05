@@ -12,7 +12,7 @@ from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import firebase_admin.auth as fb_auth
-from mqtt_client import publish_feed, set_current_user, get_bowl_weight, get_hopper_status
+from mqtt_client import publish_feed, set_current_user, get_bowl_weight, get_hopper_status, get_feed_status
 from chatbot_service import ask_gemini
 from firebase_service import get_today_feedings, get_historical_feedings
 from prediction_model import calculate_ema
@@ -80,18 +80,18 @@ def get_status(uid: str = Depends(get_verified_uid)):
 
 @app.post("/feed")
 def feed(uid: str = Depends(get_verified_uid)):
-    # Publish a feed command to the ESP32 through MQTT.
-    success = publish_feed(user_id=uid)
-
-    # Confirm whether the command was successfully sent to the MQTT broker.
-    if success:
+    status = publish_feed(user_id=uid)
+    if status == "accepted":
         return {"success": True}
-
     return JSONResponse(
-        # 503: Service Unavailable
-        status_code=503,
-        content={"success": False},
+        status_code=409 if status == "busy" else 503,
+        content={"success": False, "status": status},
     )
+
+@app.post("/feed_status")
+def read_feed_status(uid: str = Depends(get_verified_uid)):
+    status = get_feed_status()
+    return {"feed_completed": status == "completed", "status": status}
 
 @app.post("/chat")
 def chat(request: dict, uid: str = Depends(get_verified_uid)):

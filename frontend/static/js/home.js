@@ -26,27 +26,80 @@ async function getStatus() {
 
 // Send a manual feeding request to the backend API (/feed)
 async function requestFeed() {
+  if (feedButton.disabled) return;
+  showLoading();
   try {
     const response = await authFetch(`${API_BASE_URL}/feed`, {
       method: "POST",
+      signal: AbortSignal.timeout(5000),
     });
 
     const data = await response.json();
-    const success = response.ok && data.success;
 
-    feedNotification.textContent = success
-      ? "Feed request sent!"
-      : "Failed to send command!";
+    if (!response.ok || !data.success) {
+      feedNotification.textContent =
+        data.status === "busy"
+          ? "Feeder is busy. Please wait."
+          : "Failed to send command!";
+      feedNotification.style.color = "red";
+      return;
+    }
 
-    feedNotification.style.color = success ? "green" : "red";
+    feedNotification.textContent = "Feeding...";
+    feedNotification.style.color = "green";
+    await getFeedStatus();
   } catch (error) {
-    feedNotification.textContent = "Cannot connect to server!";
+    feedNotification.textContent =
+      "Cannot confirm feeding status. Check the device before retrying.";
     feedNotification.style.color = "red";
+  } finally {
+    hideLoading();
   }
 
   setTimeout(() => {
     feedNotification.textContent = "";
   }, 3000);
+}
+
+async function getFeedStatus() {
+  const deadline = Date.now() + 10000;
+  while (Date.now() < deadline) {
+    const response = await authFetch(`${API_BASE_URL}/feed_status`, {
+      method: "POST",
+      signal: AbortSignal.timeout(5000),
+    });
+
+    if (!response.ok) throw new Error("Status request failed");
+
+    const data = await response.json();
+
+    if (data.feed_completed) {
+      feedNotification.textContent = "Feed completed!";
+      feedNotification.style.color = "green";
+      return;
+    }
+
+    if (
+      data.status === "timeout" ||
+      data.status === "idle" ||
+      data.status === "publish_failed"
+    )
+      break;
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+  feedNotification.textContent =
+    "No confirmation received. Check the device before retrying.";
+  feedNotification.style.color = "red";
+}
+
+function showLoading() {
+  feedButton.disabled = true;
+  feedButton.textContent = "Feeding...";
+}
+
+function hideLoading() {
+  feedButton.disabled = false;
+  feedButton.textContent = "Feed Now";
 }
 
 // Bind event listener to manual feed button
