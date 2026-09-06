@@ -36,7 +36,7 @@ last_bowl_weight = None
 feed_status = None
 pending_feed = None
 feed_lock = Lock()
-FEED_TIMEOUT_SECONDS = 10
+FEED_TIMEOUT_SECONDS = 15
 
 def _expire_pending_feed():
     """Release an overdue request. Caller must hold feed_lock."""

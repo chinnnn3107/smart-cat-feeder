@@ -62,7 +62,7 @@ async function requestFeed() {
 }
 
 async function getFeedStatus() {
-  const deadline = Date.now() + 10000;
+  const deadline = Date.now() + 15000;
   while (Date.now() < deadline) {
     const response = await authFetch(`${API_BASE_URL}/feed_status`, {
       method: "POST",
