@@ -6,6 +6,8 @@ from firebase_admin import credentials, firestore
 from datetime import datetime, timezone
 from datetime import timedelta
 
+VN_TZ = timezone(timedelta(hours=7))
+
 # Initialize Firebase credentials securely
 env_account_json = os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON")
 
@@ -38,7 +40,7 @@ def update_current_status(payload: dict, user_id: str):
     try:
         # Logging sensor data under user's subcollection
         log_payload = payload.copy()
-        log_payload["timestamp"] = datetime.now(timezone.utc).isoformat()
+        log_payload["timestamp"] = datetime.now(VN_TZ).isoformat()
         _user_ref(user_id).collection("sensor_logs").add(log_payload)
 
         print(f"[Firestore] Logged sensor data for user: {user_id}")
@@ -47,7 +49,7 @@ def update_current_status(payload: dict, user_id: str):
 
 def log_feed_event(event_type: str, user_id: str):
     try:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(VN_TZ)
         
         # 1. Logging feed_events for 7-day chart under user's subcollection
         feed_data = {
@@ -71,18 +73,19 @@ def log_feed_event(event_type: str, user_id: str):
 
 def get_today_feedings(user_id: str) -> int:
     try:
-        today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        today_str = datetime.now(VN_TZ).strftime("%Y-%m-%d")
         doc = _user_ref(user_id).collection("daily_logs").document(today_str).get()
         if doc.exists:
             return doc.to_dict().get("total_feedings", 0)
         return 0
-    except Exception:
+    except Exception as e:
+        print(f"[Firestore Error] get_today_feedings failed for {user_id}: {e}")
         return 0
 
 
 def update_daily_eaten(amount: float, user_id: str):
     try:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(VN_TZ)
         today_str = now.strftime("%Y-%m-%d")
         
         # Increment total_eaten_grams safely under user's subcollection
@@ -97,7 +100,7 @@ def update_daily_eaten(amount: float, user_id: str):
         
 def get_historical_feedings(user_id: str, days=7) -> list:
     try:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(VN_TZ)
         history = []
         for i in range(days - 1, -1, -1):
             target_date = now - timedelta(days=i)
