@@ -38,24 +38,20 @@
   font-weight: bold;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .log-page {
     grid-template-columns: 1fr;
-  }
-
-  .sidebar {
-    padding: 24px 16px;
+    grid-template-rows: auto 1fr;
   }
 
   .main-content {
-    padding: 20px;
+    padding: 20px 16px;
   }
 
   .chart-container {
     width: 100%;
-    min-height: 350px;
-    margin-top: 20px;
     padding: 16px;
+    margin-top: 20px;
   }
 
   #feeding-chart {

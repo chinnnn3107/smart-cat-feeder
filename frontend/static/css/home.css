@@ -100,6 +100,24 @@
   background: #2f2f2f;
 }
 
+/* Responsive Layout */
+@media (max-width: 768px) {
+  .home-page {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .main-content {
+    padding: 20px 16px;
+    gap: 16px;
+  }
+
+  .first-row {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
 @media (max-width: 600px) {
   .home-page {
     grid-template-columns: 1fr;

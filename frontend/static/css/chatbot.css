@@ -135,15 +135,21 @@
   background: #333;
 }
 
-/* Mobile */
-@media (max-width: 600px) {
+/* Mobile & Tablet Responsive */
+@media (max-width: 768px) {
   .chatbot-page {
     grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .main-content {
+    padding: 16px 12px;
   }
 
   .message-input-container {
     width: 100%;
-    margin-top: 20px;
+    margin-top: 16px;
+    height: calc(100vh - 120px);
   }
 
   .user-message,
