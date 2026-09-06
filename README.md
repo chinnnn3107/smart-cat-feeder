@@ -69,7 +69,8 @@ smart-cat-feeder/
     │   └── js/                     # Frontend ES6 Modules
     │       ├── api.js              # Authenticated fetch wrapper with Firebase ID Token
     │       ├── auth.js             # Firebase Auth SDK initialization
-    │       ├── auth-guard.js       # Authentication page route guard
+    │       ├── auth-guard.js       # Authenticated page route guard
+    │       ├── guest-guard.js      # Guest page route guard (redirects logged-in users)
     │       ├── config.js           # Dynamic API base URL resolution
     │       ├── home.js             # Dashboard status polling & feed trigger
     │       ├── logs.js             # Chart.js 7-day history & EMA prediction display
